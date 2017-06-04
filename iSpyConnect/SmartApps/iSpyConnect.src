@@ -109,7 +109,12 @@ def preferenceCredentialsValidation() {
 
                     pageTitle = "Connection Unsuccessful"
                     pageSection = "iSpyConnect platform unexpected responsee"
-                    pageParagraph = "Details:  HTTP status response was ${response.status}"
+                    
+                    if (response.status != null) {
+                    	pageParagraph = "Details:  HTTP status response was ${response.status}"
+                	} else {
+                		pageParagraph = "Details:  No response status from the iSpyConnect platform APIs.  Check to make sure the network connectivity is up and your local iSpy instance is operational"
+                	}
                 }
             }	
         )
