@@ -1,0 +1,2 @@
+# SmartThings iSpyConnect Manager SmartApps &amp; Device Handlers
+Provides the ability to integrate most 3rd party cameras into the SmartThings platform by providing the integration of the iSpyConnect platform APIs with SmartThings.  Using a local iSpyPro server, the world's #1 video surveillance software and a low cost subsciption (http://www.ispyconnect.com/pricing.aspx) you can expose your cameras via iSpyConnect APIs to SmartThings.  This enables you to view as many cameras you have installed.  There is no limitation.   
