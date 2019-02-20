@@ -1,6 +1,8 @@
 ARG BUILD_FROM=homeassistant/amd64-base:latest
 FROM $BUILD_FROM
 
+LABEL authors="Stephen Harris <stephen@homemations.com>"
+
 # Install node and npm
 RUN apk update -y \
  && apk add --no-cache --virtual bash git \

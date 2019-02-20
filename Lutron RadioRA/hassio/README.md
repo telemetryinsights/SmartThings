@@ -2,19 +2,22 @@
 
 [Lutron](http://lutron.com/) RadioRA V1 SmartThings Gateway (Hass.io)
 
-This integrates Lutron's RadioRA (original version 1) light switches and zones with
-Home Assistant by packaging up
-[Homemation's Lutron RadioRA Manager](https://github.com/homemations/SmartThings)
-into a [Hassio](https://www.home-assistant.io/hassio/) add-on. Note that this requires
-Home Assistant 0.87 or later as it relies on native SmartThings integration (rather than
-the added complexity of a MQTT bridge).
+This [Hassio](https://www.home-assistant.io/hassio/) add-on integrates Lutron's
+original RadioRA 1 (version 1) light switch and zone controls with [Home Assistant]
+(https://www.home-assistant.io/)
+by packaging up [HomeMation's Lutron RadioRA Manager](https://github.com/homemations/SmartThings). 
+Note that this requires Home Assistant 0.87 or later as this add-on relies on native SmartThings
+integration (rather than the added complexity of a MQTT bridge).
 
-Provides integration of a Lutron RadioRA 1 home lighting system into the SmartThings platform via a Raspberry PI Gateway. The Raspberry PI Gateway was developed by HomeMations using Python to expose RESTful APIs. The Raspberry PI connects to the Lutron RadioRA 1 serial interface (part #RA-RS232) and home LAN to bridge communication
-from the SmartThings hub to the RS232 interface.
+The Lutron RadioRA Gateway was developed by Stephen Harris at HomeMations using Python
+to expose RESTful APIs that a SmartThings hub can communicate with. The Python server
+communicates with a Lutron RadioRA 1 serial interface (part #RA-RS232), connected directly
+via RS-232 cable to the Raspberry Pi, with a SmartThings hub running on a shared
+local network.
 
 Thanks to Stephen Harris <stephen@homemations.com> for implementing the RadioRA 1 Gateway.
 
-= Required Hardware =
+## Required Hardware
 
 * Lutron's [RadioRA RS232 Serial Interface](http://www.lutron.com/TechnicalDocumentLibrary/044005c.pdf)
 * Raspberry Pi capable of running [Hassio](https://www.home-assistant.io/hassio/)
@@ -34,7 +37,7 @@ are supported. Note, the initial Lutron RadioRA Manager release only supports di
 1. In your Hass.io "Add-On Store", add the repository URL to the Lutron RadioRA HASSIO add-on:
 
 <pre>
-     https://github.com/rsnodgrass/lutron-radiora1/
+     https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio
 </pre>
 
 2. Find the "Lutron RadioRA Manager" in the add-ons and install it
