@@ -1,24 +1,14 @@
 {
   "name": "Lutron RadioRA 1 SmartThings Gateway",
-  "version": "0.1.0.0",
+  "version": "0.1",
   "slug": "lutron-radiora1",
   "description": "Lutron RadioRA 1 SmartThings Gateway",
   "url":"https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio",
-  "startup": "application",
+  "startup": "before",
   "boot": "auto",
-  "host_network" : false,
-  "arch": [
-    "armhf",
-    "amd64"
-  ],
-  "map": [
-    "share:rw",
-    "ssl"
-  ],
-  "options": {
-      "port": "8080"
-    },
-    "schema": {
-      "port": "str"
-    }
+  "ports": {
+    "8080/tcp": 8080
+  },
+  "options": {},
+  "schema": {}
 }

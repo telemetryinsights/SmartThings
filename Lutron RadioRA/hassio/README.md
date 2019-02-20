@@ -40,14 +40,14 @@ are supported. Note, the initial Lutron RadioRA Manager release only supports di
      https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio
 </pre>
 
-2. Find the "Lutron RadioRA Manager" in the add-ons and install it
+2. Find the "Lutron RadioRA 1 Gateway" in the add-ons and click Install
 
-3. Follow Homemation's instructions on how to add the SmartApp and DeviceType in
+3. Follow HomeMation's instructions on how to add the SmartApp and DeviceType in
    SmartThings.
 
 ### Configuration
 
-Change the config of the app in hassio then edit the configuration.yaml:
+Edit your Home Assistant configuration.yaml:
 
 <pre>switches:
   - platform: mqtt
@@ -59,8 +59,7 @@ Add the following to the configuration.yaml for each switch:
 <pre>
   - platform: mqtt
     name: "Kitchen Door"
-    state_topic: "adt/zone/Kitchen Door/state"
-    device_class: door
-    retain: true
-    value_template: '{{ value_json.status }}' 
 </pre>
+
+Configure each Lutron RadioRA zone/switch using standard SmartThing
+integration with Home Assistant.
