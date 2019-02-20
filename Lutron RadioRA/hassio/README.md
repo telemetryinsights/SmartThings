@@ -63,3 +63,9 @@ Add the following to the configuration.yaml for each switch:
 
 Configure each Lutron RadioRA zone/switch using standard SmartThing
 integration with Home Assistant.
+
+## Security
+
+Note, this opens a port on your local network with a REST server that
+can control your Lutron RadioRA lighting. Anyone who can access your
+network could possibly control your lights.
