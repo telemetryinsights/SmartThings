@@ -1,8 +1,6 @@
-# lutron-radiora1
+# Lutron RadioRA 1 SmartThings Gateway Add-On for Hass.io
 
-[Lutron](http://lutron.com/) RadioRA V1 SmartThings Gateway (Hass.io)
-
-This [Hassio](https://www.home-assistant.io/hassio/) add-on integrates Lutron's
+This [Hassio](https://www.home-assistant.io/hassio/) add-on integrates [Lutron's](http://lutron.com/)
 original RadioRA 1 (version 1) light switch and zone controls with [Home Assistant]
 (https://www.home-assistant.io/)
 by packaging up [HomeMation's Lutron RadioRA Manager](https://github.com/homemations/SmartThings). 
@@ -15,35 +13,30 @@ communicates with a Lutron RadioRA 1 serial interface (part #RA-RS232), connecte
 via RS-232 cable to the Raspberry Pi, with a SmartThings hub running on a shared
 local network.
 
-Thanks to Stephen Harris <stephen@homemations.com> for implementing the RadioRA 1 Gateway.
-
-## Required Hardware
+### Required Hardware
 
 * Lutron's [RadioRA RS232 Serial Interface](http://www.lutron.com/TechnicalDocumentLibrary/044005c.pdf)
 * Raspberry Pi capable of running [Hassio](https://www.home-assistant.io/hassio/)
 * RS232 Serial interface to Pi: direct wire RadioRA RA-S232 to Pi pins *OR* a USB serial adapter
 
-See the [Homemation Lutron RadioRA Manager](https://github.com/homemations/SmartThings)
-project for details on hardware setup, SmartThings groovy script installs, as well as what features
+See the [HomeMation Lutron RadioRA Manager](https://github.com/homemations/SmartThings)
+for details on hardware setup, SmartThings groovy script installs, as well as what features
 are supported. Note, the initial Lutron RadioRA Manager release only supports dimmers, switches and zones.
 
-## FIXME
+### Hassio Setup
 
-- FLASK_SERVER_NAME: 192.168.1.142:8080 (see python/settings.py)
-- where do logs go?
-
-## Hassio Setup
-
-1. In your Hass.io "Add-On Store", add the repository URL to the Lutron RadioRA HASSIO add-on:
+1. To to the Hass.io "Add-On Store" on your Raspberry Pi and add the repository URL
+   for the Lutron RadioRA 1 integration:
 
 <pre>
      https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio
 </pre>
 
-2. Find the "Lutron RadioRA 1 Gateway" in the add-ons and click Install
+2. Find the "Lutron RadioRA 1 SmartThings Gateway" in the add-ons and click Install
 
-3. Follow HomeMation's instructions on how to add the SmartApp and DeviceType in
-   SmartThings.
+3. Follow HomeMation's instructions on how to add the SmartApp and Device Handler in
+   SmartThings. You can manage the SmartApp and Device Handler via the 
+   [SmartThings Groovy IDE](https://graph.api.smartthings.com/).
 
 ### Configuration
 
@@ -69,3 +62,9 @@ integration with Home Assistant.
 Note, this opens a port on your local network with a REST server that
 can control your Lutron RadioRA lighting. Anyone who can access your
 network could possibly control your lights.
+
+## FIXME
+
+- enable configuration of port...change default from 8080 as that is likely to conflict!
+- FLASK_SERVER_NAME: 192.168.1.142:8080 (see python/settings.py)
+- ensure logs are visible in Hass.io add-on console!
