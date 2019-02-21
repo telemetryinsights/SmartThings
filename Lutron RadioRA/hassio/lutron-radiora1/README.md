@@ -29,7 +29,7 @@ are supported. Note, the initial Lutron RadioRA Manager release only supports di
    for the Lutron RadioRA 1 integration:
 
 <pre>
-     https://github.com/rsnodgrass/SmartThings/tree/master/Lutron%20RadioRA/hassio
+     https://github.com/rsnodgrass/SmartThings/tree/master/Lutron%20RadioRA/hassio/repository
 </pre>
 
 2. Find the "Lutron RadioRA 1 SmartThings Gateway" in the add-ons and click Install
