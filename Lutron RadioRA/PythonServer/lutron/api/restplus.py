@@ -7,7 +7,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 log = logging.getLogger(__name__)
 
-api = Api(version='1.0', title='RadioRA Classic Manager', description='Lutron RadioRA Classic RESTful APIs')
+api = Api(title='Lutron RadioRA Classic Gateway', version='1.0', 
+          description='Exposes RESTful APIs for interacting with Lutron RadioRA Classic switches/dimmers')
 
 @api.errorhandler
 def default_error_handler(e):
