@@ -14,9 +14,9 @@ log = logging.getLogger(__name__)
 
 ns = api.namespace('zones', description='Operations related to lutron zones')
 
-tty = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
+tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
 
-ser = serial.Serial(tty,
+ser = serial.Serial(tty_path,
                     baudrate=9600,
                     parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE,

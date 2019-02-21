@@ -14,6 +14,7 @@ app = Flask(__name__)
 logging_conf_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '../logging.conf'))
 logging.config.fileConfig(logging_conf_path)
 log = logging.getLogger(__name__)
+
 tty = '/dev/ttyUSB0' if not os.environ['SERIAL_TTY'] else os.environ['SERIAL_TTY']
 
 def configure_app(flask_app):
@@ -40,7 +41,11 @@ def initialize_app(flask_app):
 def main():
     initialize_app(app)
 
-    log.info('>>>>> Communicating with Lutron RA-RS232 on serial %s', tty)
+    if not os.exists(tty):
+        log.error('>>>>> No such serial device %s exists: check SERIAL_TTY environment variable', tty)
+        exit
+    else:
+        log.info('>>>>> Communicating with Lutron RA-RS232 on serial %s', tty)
 
     log.info('>>>>> Starting server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)
