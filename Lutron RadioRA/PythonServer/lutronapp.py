@@ -41,7 +41,7 @@ def initialize_app(flask_app):
 def main():
     initialize_app(app)
 
-    if not os.exists(tty):
+    if not os.path.exists(tty):
         log.error('>>>>> No such serial device %s exists: check SERIAL_TTY environment variable', tty)
         exit
     else:
