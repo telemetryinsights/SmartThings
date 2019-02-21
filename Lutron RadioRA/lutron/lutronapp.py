@@ -40,8 +40,8 @@ def initialize_app(flask_app):
 def main():
     initialize_app(app)
 
-    tty = '/dev/ttyUSB0' if not os.environ['SERIAL_TTY'] else os.environ['SERIAL_TTY']
-    log.info('>>>>> Communicating with Lutron RA-RS232 on serial %s", tty)
+    tty = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
+    log.info('>>>>> Communicating with Lutron RA-RS232 on serial %s', tty)
 
     log.info('>>>>> Starting server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)
