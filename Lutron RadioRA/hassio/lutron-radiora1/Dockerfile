@@ -16,17 +16,14 @@ RUN apk update \
 # version used matches the version of the Python (in case something changes
 # at the same time).
 #
-RUN git clone https://github.com/homemations/SmartThings/ homemations
-ENV LUTRON_APP_DIR "homemations/Lutron RadioRA/lutron"
-COPY ${LUTRON_APP_DIR} /app
+RUN git clone https://github.com/homemations/SmartThings/ /homemations
 
 COPY ./requirements.txt /app/requirements.txt
-#COPY . /app
 
 RUN pip install -r requirements.txt
 
 ENTRYPOINT [ "python" ]
-CMD [ "lutronapp.py" ]
+CMD [ "/homemations/Lutron RadioRA/lutron/lutronapp.py" ]
 
 # Build arguments
 ARG BUILD_ARCH
