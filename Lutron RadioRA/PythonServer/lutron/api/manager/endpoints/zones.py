@@ -30,6 +30,7 @@ def getZMPStates():
     ser.reset_input_buffer()
     ser.write(str.encode("ZMPI\r\n"))
 
+    # FIXME: this fails if cannot get a response, an error status should be returned instead of failing
     zoneStates = ser.readline().decode('utf-8').replace("\r","|")
     zoneStates = zoneStates.upper().lstrip('ZMP')
     
