@@ -1,6 +1,6 @@
 import os
 import time
-import serial
+#import serial
 import logging.config
 
 from flask import Flask, Blueprint
@@ -39,7 +39,11 @@ def initialize_app(flask_app):
 
 def main():
     initialize_app(app)
-    log.info('>>>>> Starting development server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
+
+    tty = '/dev/ttyUSB0' if not os.environ['SERIAL_TTY'] else os.environ['SERIAL_TTY']
+    log.info('>>>>> Communicating with Lutron RA-RS232 on serial %s", tty)
+
+    log.info('>>>>> Starting server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)
 
 if __name__ == "__main__":
