@@ -9,7 +9,7 @@ from lutron.database.models import Zone, Zonetype
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('zonetypes', description='Operations related to lutron zonetypes')
+ns = api.namespace('zonetypes', description='Operations related to RadioRA zone types')
 
 @ns.route('/')
 class ZoneTypeCollection(Resource):

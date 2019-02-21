@@ -12,7 +12,7 @@ from lutron.database.models import Zone, Zonetype
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('zones', description='Operations related to lutron zones')
+ns = api.namespace('zones', description='Operations related to RadioRA zones')
 
 tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
 
