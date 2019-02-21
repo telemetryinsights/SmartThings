@@ -48,5 +48,5 @@ LABEL \
     org.label-schema.url="https://community.home-assistant.io/t/community-hass-io-add-on-lutron-radiora/" \
     org.label-schema.usage="https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio/README.md" \
     org.label-schema.vcs-ref=${BUILD_REF} \
-    org.label-schema.vcs-url="https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio" \
+    org.label-schema.vcs-url="https://github.com/rsnodgrass/SmartThings/tree/master/Lutron%20RadioRA/hassio \
     org.label-schema.vendor="Community Hass.io Add-ons"

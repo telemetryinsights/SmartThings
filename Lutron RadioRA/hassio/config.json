@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "slug": "lutron-radiora1",
   "description": "Gateway between SmartThings and Lutron RadioRA 1 RS-232 serial controller",
-  "url":"https://github.com/rsnodgrass/SmartThings/Lutron%20RadioRA/hassio",
+  "url":"https://github.com/rsnodgrass/SmartThings/tree/master/Lutron%20RadioRA/hassio",
   "startup": "before",
   "boot": "auto",
   "ports": {
