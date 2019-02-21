@@ -18,7 +18,7 @@ RUN apk update -y \
 #RUN git clone \
 #  https://github.com/homemations/SmartThings/tree/master/Lutron%20RadioRA \
 #  "Lutron RadioRA"
-COPY ../lutron /app
+COPY ../../lutron /app
 
 #COPY ./requirements.txt /app/requirements.txt
 COPY . /app
