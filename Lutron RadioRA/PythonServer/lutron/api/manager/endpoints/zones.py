@@ -62,11 +62,10 @@ class ZoneCollection(Resource):
     @api.marshal_list_with(zone)
     def get(self):
         zones = Zone.query.all()
-               
-        zones = addZoneStates(zones, getZMPStates())
-        
+        zones = addZoneStates(zones, getZMPStates())        
         return zones    
 
+    # should creating zones exist?  There are a fixed number of Zones for RA-RS232 and Chronos devices (per system)
     @api.response(201, 'Zone successfully created.')
     @api.expect(zone)
     def post(self):
