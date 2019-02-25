@@ -13,14 +13,13 @@
 *  for the specific language governing permissions and limitations under the License. 
 */ 
  
-// import helper libraries not a part of the SmartThings SDK
 import java.text.DecimalFormat
  
 definition( 
-    name: "Lutron RadioRA Classic SmartThings Bridge (Connect)", 
+    name: "Lutron RadioRA Classic SmartThings Bridge", 
     namespace: "Homemations", 
     author: "Stephen Harris", 
-    description: "This SmartApp installs the Lutron RadioRA Classic SmartThings Bridge integration for managing Lutron RadioRA Classic zones", 
+    description: "Control a Lutron RadioRA Classic lighting system through the RadioRA Classic SmartThings Bridge", 
     category: "Convenience", 
     iconUrl: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png", 
     iconX2Url: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn@2x.png", 
@@ -28,7 +27,7 @@ definition(
     singleInstance: true) 
 
 preferences {	
-    page(name: "preferenceLutronManager", title: "Lutron RadioRA Classic Bridge")    
+    page(name: "preferenceLutronBridge", title: "Lutron RadioRA Classic Bridge")    
     page(name: "preferenceLutronValidation", title: "Lutron RadioRA Classic Bridge")    
     page(name: "preferenceLutronConfiguration", title: "Lutron RadioRA Classic Bridge")
 }
@@ -39,32 +38,31 @@ def getHostAddress() {return bridgeHost + ":" + bridgePort}
 def getPlatformUri() {return "/api"}
 
 // Dynamic Preferences to support configuration validation section
-def preferenceLutronManager() {
-    log.info "Entered Method: preferenceLutronManager()"
+def preferenceLutronBridge() {
+    log.info "Entered Method: preferenceLutronBridge()"
     
     atomicState.zones = null
     atomicState.zoneNames = null
     
     def showUninstall = (bridgeHost != null && bridgePort != null)
-	return dynamicPage(name: "preferenceLutronManager", title: "Connect to the Lutron RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
+	return dynamicPage(name: "preferenceLutronBridge", title: "Connect to a Lutron RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
 		section() {
-        	paragraph "Lutron RadioRA Classic SmartThings Bridge (Connect)\n" +
-                "Copyright\u00A9 2018 Homemations, Inc.\n" +
+        	paragraph "RadioRA Classic SmartThings Bridge\n" +
+                "Copyright \u00A9 2018 Homemations, Inc.\n" +
             	"Version: ${appVer()}",
                 image: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png"
     	}
     
-    	section("Platform Credentials") {
-        	input("bridgeHost", "string", title:"Hostname or IP address for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 
-        	input("bridgePort", "string", title:"Port # for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 		
+    	section("Bridge Configuration") {
+        	input("bridgeHost", "string", title:"Bridge hostname or IP address", description: "10.1.1.33", required: true, displayDuringSetup: true) 
+        	input("bridgePort", "string", title:"Bridge port number (default = 8333)", required: true, displayDuringSetup: true, defaultValue: 8333) 		
         }
         
-        section("Platform Polling"){
-			input(name: "polling", type: "enum", title: "Polling Interval (Minutes)", description: "Number of minutes between checking the RadioRA Classic SmartThings Bridge for changes", options: [1,5,10,15,30], defaultValue: 5)
-		}
+        section("Advanced"){
+			input(name: "polling", type: "enum", title: "Polling interval for checking Bridge state (minutes)", options: [1,5,10,15,30], defaultValue: 5)
+        	input(name: "preferencePushAlerts", type: "bool", title: "Receive push notifications when zones change", defaultValue: false)
+			input(name: "bridgeTimeout", type: "int", title: "Bridge callback timeout (seconds)", options: [1,2,3,5,8,10,15], defaultValue: 8)
 
-		section("Platform Push Notifications") {
-        	input "preferencePushAlerts", "bool", required: false, title: "Push notifications when RadioRA Classic Zones change?", defaultValue: false
     	}
 	}
 }
@@ -72,8 +70,8 @@ def preferenceLutronManager() {
 def preferenceLutronValidation() {
     log.info "Entered Method: preferenceLutronValidation()"
 
-	// Config settings for network time out on callback response
-	def int timeoutinMilliSeconds = 8000
+	// config settings for network time out on callback response
+	def int timeoutinMilliSeconds = bridgeTimeout * 1000 //  8000
 	def int maxTimeout = now() + timeoutinMilliSeconds
 	
 	getZones()
@@ -277,7 +275,7 @@ def sendCmd(cmd,zone,level){
 		def httpRequest = [
 			method: "GET",
 			path: getPlatformUri() + "/command/$cmd/zone/$zone/level/$level",
-			headers:	[
+			headers: [
 				HOST: getHostAddress(),
 				"Content-Type": "application/json",                        
 			]
@@ -303,7 +301,7 @@ def sendCmdCallBack(hubResponse) {
 		if (status == 200) {
         	log.warn "RadioRA Classic Bridge API returned 200"
 		} else {
-			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge"
+			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge (status " + status + ")"
 		}
 	} catch (all) {
 		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
@@ -322,7 +320,7 @@ def on(childDevice, transition_deprecated = 0) {
     	sendEvent(childDeviceNetworkId, [name: "switch", value: "on"])
         sendEvent(childDeviceNetworkId, [name: "level", value: "100"])
     } else {
-    	sendCmd('SDL',childDeviceNetworkId.split(/\./).last(), percent)
+    	sendCmd('SDL', childDeviceNetworkId.split(/\./).last(), percent)
         sendEvent(childDeviceNetworkId, [name: "switch", value: "on"])
     }
 }
