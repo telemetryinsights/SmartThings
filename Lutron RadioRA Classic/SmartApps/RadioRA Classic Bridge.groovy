@@ -1,5 +1,5 @@
 /** 
-*  Lutron RadioRA Classic SmartThings Bridge by Stephen Harris (stephen@homemations.com) 
+*  Lutron RadioRA Classic Smart Bridge by Stephen Harris (stephen@homemations.com) 
 *   
 *  Copyright 2018 Homemations, Inc 
 * 
@@ -16,10 +16,10 @@
 import java.text.DecimalFormat
  
 definition( 
-    name: "Lutron RadioRA Classic SmartThings Bridge", 
+    name: "Lutron RadioRA Classic Smart Bridge", 
     namespace: "Homemations", 
     author: "Stephen Harris", 
-    description: "Control a Lutron RadioRA Classic lighting system through the RadioRA Classic SmartThings Bridge", 
+    description: "Control a Lutron RadioRA Classic lighting system through the RadioRA Classic Smart Bridge", 
     category: "Convenience", 
     iconUrl: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png", 
     iconX2Url: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn@2x.png", 
@@ -45,9 +45,9 @@ def preferenceLutronBridge() {
     atomicState.zoneNames = null
     
     def showUninstall = (bridgeHost != null && bridgePort != null)
-	return dynamicPage(name: "preferenceLutronBridge", title: "Connect to a RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
+	return dynamicPage(name: "preferenceLutronBridge", title: "Connect to a RadioRA Classic Smart Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
 		section() {
-        	paragraph "RadioRA Classic SmartThings Bridge\n" +
+        	paragraph "RadioRA Classic Smart Bridge\n" +
                 "Copyright \u00A9 2018 Homemations, Inc.\n" +
             	"Version: ${appVer()}",
                 image: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png"
@@ -80,7 +80,7 @@ def preferenceLutronValidation() {
 		if (now().toInteger() > maxTimeout) {
 			def pattern = "#,###,###"
 			def timeoutFormat = new DecimalFormat(pattern)
-			log.warn "Max timeout of " + timeoutFormat.format(timeoutinMilliSeconds) + " ms reached waiting for a response from the RadioRA Classic SmartThings Bridge"
+			log.warn "Max timeout of " + timeoutFormat.format(timeoutinMilliSeconds) + " ms reached waiting for a response from the RadioRA Classic Smart Bridge"
 			break
 		}
 	}
@@ -90,21 +90,21 @@ def preferenceLutronValidation() {
 		
 		return dynamicPage(name: "preferenceLutronConfiguration", title: "Lutron Zones Configuration", install: true, uninstall: true) {
 			section("Select Your RadioRA Classic Zones") {
-				paragraph "Tap below to see the list of Zones accessible your RadioRA Classic SmartThings Bridge and select those you want to connect to SmartThings."
+				paragraph "Tap below to see the list of Zones accessible your RadioRA Classic Smart Bridge and select those you want to connect to SmartThings."
 				input(name: "lutronZones", title:"Zones selected", type: "enum", required:true, multiple:true, description: "Tap to choose", metadata:[values: atomicState.zoneNames.sort {it.value}])
 			}
 		}
 	}
 	else {
-		log.error "Unable to connect to the RadioRA Classic SmartThings Bridge"
+		log.error "Unable to connect to the RadioRA Classic Smart Bridge"
 		
 		return dynamicPage(name: "preferenceLutronValidation", title: "RadioRA Bridge Connection Failure", uninstall:false, install: false) {
 			section() {
-				paragraph "Unable to connect to the RadioRA Classic SmartThings Bridge."
+				paragraph "Unable to connect to the RadioRA Classic Smart Bridge."
 				paragraph image: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png",
 					title: "Connection Failure",
 					required: true,
-					"Ensure the IP address and port configured for your RadioRA Classic SmartThings Bridge is correct and that the Bridge is running. Press back to verify settings and try again"            
+					"Ensure the IP address and port configured for your RadioRA Classic Smart Bridge is correct and that the Bridge is running. Press back to verify settings and try again"            
 			}
 		}
 	}
@@ -126,7 +126,7 @@ def getZones(){
 		def hubAction = new physicalgraph.device.HubAction(httpRequest, null, [callback: zonesCallbackHandler])
 		return sendHubCommand(hubAction)
 	} catch (all) {
-		log.error "Cannot connect to the RadioRA Classic SmartThings Bridge. Message: " + all
+		log.error "Cannot connect to the RadioRA Classic Smart Bridge. Message: " + all
 	}
     return
 }
@@ -162,10 +162,10 @@ def zonesCallbackHandler(hubResponse) {
 			atomicState.zones = zones
 			atomicState.zoneNames = zoneNames
 		} else {
-			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge"
+			log.error "Not a 200 Response from the RadioRA Classic SmartBridge"
 		}
 	} catch (all) {
-		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
+		log.error "No response from the RadioRA Classic Smart Bridge. Message: " + all
 	}
 }
 
@@ -236,7 +236,7 @@ def createZoneDevices() {
         if(!device) {
             if (zoneTypeid == 3) {
                 device = addChildDevice(app.namespace, "Lutron Grafik Eye Scene", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron Grafik Eye Scene"])
-               	log.debug "Created ${device.displayName} with id $dni as a RadioRA Grafik Eye scene "
+               	log.debug "Created ${device.displayName} with id $dni as a RadioRA Grafik Eye scene"
             } else if (zoneTypeid == 2) {
             	device = addChildDevice(app.namespace, "RadioRA Classic Dimmer", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron Dimmer"])
                 log.debug "Created ${device.displayName} with id $dni as a RadioRA Classic dimmer"
@@ -248,23 +248,23 @@ def createZoneDevices() {
             log.warn "found ${device.displayName} with id $dni already exists"
         }
     }
-    log.trace "Created/Found ${zones.size()} Lutron RadioRA Classic zones."
+    log.trace "Created/found ${zones.size()} Lutron RadioRA Classic zones."
 }
 
 def deleteZoneDevices() {
 	log.info "Entered Method: deleteZoneDevices()"
     
-    // Delete any zones that are no longer in settings
+    // delete any zones that are no longer in settings
     def delete = []
     if(!lutronZones) {
 		log.debug "Delete all zones"
         delete = getAllChildDevices() 
 	} else {
     	log.debug "Get all child zone(s) not selected in App settings"
-    	delete = getChildDevices().findAll { !lutronZones.contains(it.deviceNetworkId)}
+    	delete = getChildDevices().findAll { !lutronZones.contains(it.deviceNetworkId) }
     }
 	log.warn "Delete: " + delete ?: 'N/A' + ", deleting " + delete.size() ?: 0 + " zones"
-    delete.each {deleteChildDevice(it.deviceNetworkId) } 
+    delete.each { deleteChildDevice(it.deviceNetworkId) } 
 }
 
 def sendCmd(cmd,zone,level){
@@ -282,7 +282,7 @@ def sendCmd(cmd,zone,level){
 		
 		sendHubCommand(new physicalgraph.device.HubAction(httpRequest, null, [callback: sendCmdCallBack]))
 	} catch (all) {
-		log.error "Cannot connect to the RadioRA Classic SmartThings Bridge. Message: " + all
+		log.error "Cannot connect to the RadioRA Classic Smart Bridge. Message: " + all
 	}
 }
 
@@ -298,12 +298,12 @@ def sendCmdCallBack(hubResponse) {
 
 		log.debug "lanRequest status response: $status" 
 		if (status == 200) {
-        	log.warn "RadioRA Classic Bridge API returned 200"
+        	log.warn "RadioRA Classic Smart Bridge returned 200"
 		} else {
-			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge (status " + status + ")"
+			log.error "Not a 200 Response from the RadioRA Classic Smart Bridge (status " + status + ")"
 		}
 	} catch (all) {
-		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
+		log.error "No response from the RadioRA Classic Smart Bridge. Message: " + all
 	}
 }
 
@@ -364,13 +364,13 @@ def pollZones(){
 		def hubAction = new physicalgraph.device.HubAction(httpRequest, null, [callback: pollCallbackHandler])
         sendHubCommand(hubAction)
 	} catch (all) {
-		log.error "Connection to RadioRA Classic SmartThings Bridge failed. Message: " + all
+		log.error "Connection to RadioRA Classic Smart Bridge failed. Message: " + all
 	}
     return
 }
 
 def pollCallbackHandler(hubResponse) {
-	log.info "Entered Method: pollCallbackHandler"
+	log.info "Entered Method: pollCallbackHandler()"
     log.info "Hub Response: " + hubResponse
     
     // try {
@@ -380,7 +380,7 @@ def pollCallbackHandler(hubResponse) {
 		def status = msg.status          // => http status code of the response
 		def json = msg.json              // => any JSON included in response body, as a data structure of lists and maps
 
-		log.debug "lanRequest status response: $status" 
+		log.debug "Request status response: $status" 
 		if (status == 200) {
 			def zones = [:]
             
@@ -407,7 +407,7 @@ def pollCallbackHandler(hubResponse) {
                 def smartthingsState = child.currentState("switch")?.value
                 
                 if ((lutronState != null) && (lutronState != smartthingsState)) {
-                	log.debug "Child device: ${childDevice}, RadioRA State: ${lutronState}, SmartThings State: ${smartthingsState}"
+                	log.debug "Child device: ${childDevice}, RadioRA Bridge State: ${lutronState}, SmartThings State: ${smartthingsState}"
 
                 	if (smartthingsState == "on") {
                     	log.debug "Send ${childDevice} Switch On message"
@@ -419,9 +419,9 @@ def pollCallbackHandler(hubResponse) {
             	}
             }
     	} else {
-			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge"
+			log.error "Not a 200 Response from the RadioRA Classic Smart Bridge"
 		}
 	/* } catch (all) {
-		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
+		log.error "No response from the RadioRA Classic Smart Bridge. Message: " + all
 	}*/
 }
