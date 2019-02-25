@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import serial
 import logging
 
@@ -12,9 +13,15 @@ from lutron.database.models import Zone, Zonetype
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('zones', description='RadioRA Classic zones')
+# FIXME: what must be configured
+#  - which /dev/tty device to use
+#  - for each zone, what zone type of switch/dimmer it is (default to dimmer)
 
+ns = api.namespace('zones', description='RadioRA Classic Zones')
+
+# FIXME: share all the serial code in a separate file with command.py
 tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
+tty_timeout = int(os.environ['SERIAL_TTY_TIMEOUT']) if 'SERIAL_TTY_TIMEOUT' in os.environ else 1
 
 ser = serial.Serial(tty_path,
                     baudrate=9600, # 9600 baud is required by RA-RS232
@@ -23,42 +30,61 @@ ser = serial.Serial(tty_path,
                     bytesize=serial.EIGHTBITS,
                     dsrdtr=True,
                     rtscts=True,
-                    timeout=2
+                    timeout=tty_timeout
                     )
 
 def sendSerialCommand(command):
-    print ">>>>> Serial write: " + command
+    print(">>>>> Serial write: {}".format(command))
+    start = time.time()
     ser.reset_input_buffer()
     ser.write(str.encode(command + "\r\n"))
+    end = time.time()
+    print(">>>>> ... write took {0:.0f} ms)".format(1000 *(end-start)))
 
+# NOTE: a SerialException is thrown if the read takes longer than the configured timeout
+# NOTE: we should probably have a separate thread reading the asynchronous serial messages
+#       since there are state updates that a write/read model won't catch
+def receiveSerialResult():
+    start = time.time()
+
+    # FIXME: this is actually reading, but not completing and waiting for timeout!
+    # big performance improvement can be had here
+    
     result = ser.readline().decode('utf-8')
-    print ">>>>> Serial reply: " + result
+    end = time.time()
+    print(">>>>> Serial reply: {0} (after {1:.0f} ms)".format(result, 1000 *(end-start)))
     return result
 
+####
+
+# ZMP response from either ZMPI request *OR* from response stream
+#  ZMP,010000001000000000000000000000XX
+def handleZMPResponse():
+    # NOTE: returns X if not assigned!
+    return
+
 def getZMPStates():
-    log.info("Send ZMPI")
-    ser.reset_input_buffer()
-    ser.write(str.encode("ZMPI\r\n"))
-
-    # FIXME: this fails if cannot get a response, an error status should be returned instead of failing
-    zoneStates = ser.readline().decode('utf-8').replace("\r","|")
-
-    log.info("Zone States: " + zoneStates)
-    print("Zone States: " + zoneStates + "\n")
-
+    sendSerialCommand("ZMPI")
+    zoneStates = receiveSerialResult().replace("\r","|")
     zoneStates = zoneStates.upper().lstrip('ZMP')
-    
     return zoneStates
 
 def addZoneStates(zones, stateZMP):
     log.info("Entered: addZoneStates()")
 
+    # NOTE: ZMP always returns state for all 32 zones, PLUS if it is a bridged system
+    # it will return two sets, with ",S1" and ",S2" at the end of the result
+    # this does not support bridged systems currently
     if type(zones) is list:
         for index, item in enumerate(zones):
             if stateZMP[item.zone] == '0':
-                zones[index].state= 'off'
+                zones[index].state = 'off'
             elif stateZMP[item.zone] == '1':
                 zones[index].state = 'on'
+            elif stateZMP[item.zone] == 'X':
+                # force type to be Unassigned (since we know it isn't assigned to a dimmer or switch)
+                zones[index].zonetypeid  = '0' # Unassigned
+                zones[index].state = 'Unknown'
             else:
                 zones[index].state = 'Unknown'
     else:
@@ -66,6 +92,10 @@ def addZoneStates(zones, stateZMP):
             zones.state = 'off'
         elif stateZMP[zones.zone] == '1':
             zones.state = 'on'
+        elif stateZMP[item.zone] == 'X':
+            # force type to be Unassigned (since we know it isn't assigned to a dimmer or switch)
+            zones.zonetypeid = '0' # Unassigned
+            zones.state = 'Unknown'
         else:
             zones.state = 'Unknown'
 
@@ -93,29 +123,38 @@ class ZoneCollection(Resource):
 
 #####
 
+def sendAll(command, suffix):
+    for zone in range(16):
+        sendSerialCommand(command + "," + zone + "," + suffix)
+
 # FIXME: test of more direct control of single zones...using ZSI command
 @ns.route('/<int:id>/control')
 @api.response(404, 'Zone not found.')
-class ZoneItem(Resource):
+class ZoneItemControl(Resource):
 
     @api.marshal_with(zone)
     def get(self, id):
-        # FUTURE: note that ZSI command might be faster/more efficient here than filter the states
+        try:
+            sendAll("SDL", "100")
 
-        zoneStates = sendSerialCommand("ZSI")
+            sendSerialCommand("ZSI")
+            zoneStates = receiveSerialResult().replace("\r","|")
 
-        # FIXME: this fails if cannot get a response, an error status should be returned instead of failing
-        zoneStates = result.decode('utf-8').replace("\r","|")
+            # FIXME: how is 404 triggered?  What if I send zone 77?
 
-        log.info("Zone States: " + zoneStates)
-        print("Zone States: " + zoneStates + "\n")
+            log.info("Zone States: " + zoneStates)
+            print("Zone States: " + zoneStates + "\n")
 
-        iZone = addZoneStates(Zone.query.filter(Zone.id == id).one(), getZMPStates())
-        return iZone
+            iZone = addZoneStates(Zone.query.filter(Zone.id == id).one(), getZMPStates())
+            return iZone
+
+        except Exception as e:
+            log.exception("Unexpected error")
+            return None, 500  # 500 Internal Server Error
 
     @api.expect(zone)
     @api.response(204, 'Zone successfully updated.')
-    def put(self, id):
+    def put(self, zone):
         """
         Sets the switch on or dimmer level
 
@@ -126,7 +165,6 @@ class ZoneItem(Resource):
         ```
         {
           "zone": "Zone Number"
-          "system": "System Number"
           "state": "on/off"
           "level": "Dimmer level (optional)"
         }
@@ -134,30 +172,32 @@ class ZoneItem(Resource):
 
         * Specify the ID of the zone to control in the request URL path.
         """
+        try:
+            data = request.json
+            print ">>>> received " + data + "\n"
 
-        zone = 1
-        dimmerLevel = 50
-        zoneIsDimmer = True
-        state = 'ON'
-        state = 'OFF'
+            zoneIsDimmer = True
 
-        result = ""
-        if zoneIsDimmer == True:
-            # if state = 'on' then dimmerLevel = 100 ???
-            # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
-            result = sendSerialCommand("SDL," + zone + "," + dimmerLevel)
-        else:
-            # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
-            result = sendSerialCommand("SSL," + zone + "," + state)
-        # FIXME: SGS for Grafik Eye
-        #         
-        # FIXME: this fails if cannot get a response, an error status should be returned instead of failing
-        zoneStates = ser.readline().decode('utf-8').replace("\r","|")
+            dimmerLevel = 50
+            state = OFF
 
-        log.info("Zone States: " + zoneStates)
-        print("Zone States: " + zoneStates + "\n")
+            # NOTE: the SDL/SSL commands do not send a response
+            if zoneIsDimmer == True:
+                # if state = 'on' then dimmerLevel = 100 ???
+                # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
+                sendSerialCommand("SDL," + zone + "," + dimmerLevel)
+            else:
+                # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
+                sendSerialCommand("SSL," + zone + "," + state)
+            # FIXME: SGS for Grafik Eye
+            #
+            # FIXME: we should probably return the same content as the SRI / requests
+            return None, 204
 
-        return None, 204
+        except Exception as e:
+            print ">>>> WHAT\n"
+            log.error("Unexpected error:" + e)
+            return None, 500  # 500 Internal Server Error
 
 
 ####

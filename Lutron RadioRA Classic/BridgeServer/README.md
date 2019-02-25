@@ -9,17 +9,33 @@ Credit goes to Stephen Harris at Homemations for developing this Python-based Lu
 * Lutron hardware module that supports RS-232 communication with a RadioRA Classic system:
     - [RadioRA RS232 Serial Interface](http://www.lutron.com/TechnicalDocumentLibrary/044005c.pdf) (RA-RS232)
     - [RadioRA Chronos System Bridge](http://www.lutron.com/TechnicalDocumentLibrary/044037b.pdf) (RA-SBT-CHR)
+
 * Raspberry Pi or other server to run the Bridge
+
 * RS232 serial cable (or direct wire to Raspberry Pi GPIO pins using a MAX3232 RS-232 male adapter)
 
 ## Configuration
 
-No special configuration is necessary to start the RadioRA Classic Smart Bridge in a very basic operational mode.
-It starts up on port 8333 and immediately can accept requests to control any of the 32 switches/dimmers.
 
->>> Actually, you have to assign dimmer or switch to each of the 32 zones!
+1. Using your Lutron RadioRA Classic RS232 module, you must physically assign each Zone to a specific switch or dimmer. See the manual for your Lutron hardware module for these steps. Any Zones that are not configured on the hardware device will show up as Unassigned when querying zones later.
+
+2. Connect the RS-232 module to the host that will be running the RadioRA Classic Smart Bridge with a serial cable.
+
+3. Configure SERIAL_TTY environment variable to point to the /dev/tty device connected to the RS-232 physical hardware.
+
+4. Start the RadioRA Classic Smart Bridge (execute ./run.sh in simple case)
+
+5. Use your browser to go to http://<yourhosthere>:8333/api/
+
+
+### NOTES
+
+* the RadioRA Classic serial APIs provided by Lutron have no way to get the current dimmer level, only on/off state
+
 
 ### FUTURE
+
+- support for ZMP zone monitoring (with ZMPMON / ZMPMOFF support)
 
 - support Phantom Buttons to control groups of zones (faster if setting entire groups than individual one-by-one zone turning on/off)
 
