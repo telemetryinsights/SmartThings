@@ -42,10 +42,10 @@ def main():
     initialize_app(app)
 
     if not os.path.exists(tty):
-        log.error('>>>>> No such serial device %s exists: check SERIAL_TTY environment variable', tty)
+        log.error(">>>>> Serial device '%s' does not exist: set SERIAL_TTY environment variable to your /dev/tty interface", tty)
         exit
     else:
-        log.info('>>>>> Communicating with Lutron RA-RS232 on serial %s', tty)
+        log.info('>>>>> Communicating with Lutron via serial %s', tty)
 
     log.info('>>>>> Starting server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)

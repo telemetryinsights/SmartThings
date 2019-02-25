@@ -1,18 +1,18 @@
 import logging
 import traceback
 
-from flask_restplus import Api
 from lutron import settings
+from flask_restplus import Api
 from sqlalchemy.orm.exc import NoResultFound
 
 log = logging.getLogger(__name__)
 
-api = Api(title='Lutron RadioRA Classic Gateway', version='1.0', 
-          description='Exposes RESTful APIs for interacting with Lutron RadioRA Classic (aka RadioRA 1) switches/dimmers')
+api = Api(title='Lutron RadioRA Classic Smart Bridge', version='1.0.1', 
+          description='RESTful APIs for controlling a Lutron RadioRA Classic lighting system through a serial connection')
 
 @api.errorhandler
 def default_error_handler(e):
-    message = 'An unhandled exception occurred.'
+    message = 'An unhandled exception occurred'
     log.exception(message)
 
     if not settings.FLASK_DEBUG:
@@ -21,4 +21,4 @@ def default_error_handler(e):
 @api.errorhandler(NoResultFound)
 def database_not_found_error_handler(e):
     log.warning(traceback.format_exc())
-    return {'message': 'A database result was required but none was found.'}, 404
+    return {'message': 'A database result was required, but none found.'}, 404

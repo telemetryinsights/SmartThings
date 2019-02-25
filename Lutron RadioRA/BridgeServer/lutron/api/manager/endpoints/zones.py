@@ -12,12 +12,12 @@ from lutron.database.models import Zone, Zonetype
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('zones', description='Operations related to RadioRA zones')
+ns = api.namespace('zones', description='RadioRA Classic zones')
 
 tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
 
 ser = serial.Serial(tty_path,
-                    baudrate=9600,
+                    baudrate=9600, # 9600 baud is required by RA-RS232
                     parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE,
                     bytesize=serial.EIGHTBITS,

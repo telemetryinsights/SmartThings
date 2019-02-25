@@ -10,12 +10,12 @@ from lutron.database.models import Zone, Zonetype
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('command', description='Operations related to RadioRA commands')
+ns = api.namespace('command', description='RadioRA Classic command operations')
 
 tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
 
 ser = serial.Serial(tty_path,
-                    baudrate=9600,
+                    baudrate=9600, # 9600 baud is required by RA-RS232
                     parity=serial.PARITY_NONE,
                     stopbits=serial.STOPBITS_ONE,
                     bytesize=serial.EIGHTBITS,
@@ -30,7 +30,7 @@ class ZMPI(Resource):
         ser.reset_input_buffer()
         ser.write(str.encode("ZMPI\r\n"))
         
-        # FIXME: this fails if cannot get a response, an error status should be returned instead of failing
+        # FIXME: we should add better handling
         receiveData = ser.readline().decode('utf-8').replace("\r","|")
 
         return {'lutron': receiveData}
