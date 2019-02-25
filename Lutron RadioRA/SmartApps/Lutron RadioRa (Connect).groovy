@@ -45,7 +45,7 @@ def preferenceLutronBridge() {
     atomicState.zoneNames = null
     
     def showUninstall = (bridgeHost != null && bridgePort != null)
-	return dynamicPage(name: "preferenceLutronBridge", title: "Connect to a Lutron RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
+	return dynamicPage(name: "preferenceLutronBridge", title: "Connect to a RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
 		section() {
         	paragraph "RadioRA Classic SmartThings Bridge\n" +
                 "Copyright \u00A9 2018 Homemations, Inc.\n" +
@@ -53,16 +53,15 @@ def preferenceLutronBridge() {
                 image: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png"
     	}
     
-    	section("Bridge Configuration") {
-        	input("bridgeHost", "string", title:"Bridge hostname or IP address", description: "10.1.1.33", required: true, displayDuringSetup: true) 
-        	input("bridgePort", "string", title:"Bridge port number (default = 8333)", required: true, displayDuringSetup: true, defaultValue: 8333) 		
+    	section("Bridge Connection") {
+        	input("bridgeHost", "string", title:"Bridge hostname or IP address", description: "example: 10.1.1.33", required: true, displayDuringSetup: true) 
+        	input("bridgePort", "int", title:"Bridge port number (default = 8333)", required: true, displayDuringSetup: true, defaultValue: 8333) 		
         }
         
-        section("Advanced"){
-			input(name: "polling", type: "enum", title: "Polling interval for checking Bridge state (minutes)", options: [1,5,10,15,30], defaultValue: 5)
+        section("Advanced Settings"){
+			input(name: "polling", type: "enum", title: "Bridge polling interval (minutes)", options: [1,5,10,15,30], defaultValue: 1)
+			input(name: "bridgeTimeout", type: "int", title: "Bridge callback timeout (seconds)", defaultValue: 5)
         	input(name: "preferencePushAlerts", type: "bool", title: "Receive push notifications when zones change", defaultValue: false)
-			input(name: "bridgeTimeout", type: "int", title: "Bridge callback timeout (seconds)", options: [1,2,3,5,8,10,15], defaultValue: 8)
-
     	}
 	}
 }
@@ -71,7 +70,7 @@ def preferenceLutronValidation() {
     log.info "Entered Method: preferenceLutronValidation()"
 
 	// config settings for network time out on callback response
-	def int timeoutinMilliSeconds = bridgeTimeout * 1000 //  8000
+	def int timeoutinMilliSeconds = bridgeTimeout * 1000 // seconds * milliseconds
 	def int maxTimeout = now() + timeoutinMilliSeconds
 	
 	getZones()
