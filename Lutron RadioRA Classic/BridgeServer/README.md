@@ -16,7 +16,6 @@ Credit goes to Stephen Harris at Homemations for developing this Python-based Lu
 
 ## Configuration
 
-
 1. Using your Lutron RadioRA Classic RS232 module, you must physically assign each Zone to a specific switch or dimmer. See the manual for your Lutron hardware module for these steps. Any Zones that are not configured on the hardware device will show up as Unassigned when querying zones later.
 
 2. Connect the RS-232 module to the host that will be running the RadioRA Classic Smart Bridge with a serial cable.
@@ -27,24 +26,21 @@ Credit goes to Stephen Harris at Homemations for developing this Python-based Lu
 
 5. Use your browser to go to http://<yourhosthere>:8333/api/
 
+NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interface, or Sivoia Control. Each RadioRA Classic system has a maximum of 32 zones. Multiple instances of the Bridge can be run on different ports with serial cables connected to different RadioRA hardware modules to support an unlimited number of zones 
 
 ### NOTES
 
-* the RadioRA Classic serial APIs provided by Lutron have no way to get the current dimmer level, only on/off state
-
+* the RadioRA Classic serial APIs provided by Lutron have no way to read the current dimmer level, only on/off state
+* does not support native 15 Phantom Buttons or Room/Scene features of the Lutron hardware modules
+* does not support fade time for dimmer state changes
+* does not support setting LED lights on other master controls
 
 ### FUTURE
 
-- support for ZMP zone monitoring (with ZMPMON / ZMPMOFF support)
+- support Phantom Buttons to control groups of zones (faster setting entire groups than individual one-by-one zone turning on/off) ... or use one of the Phantom Buttons to specify which lights should flash for alarms
 
-- support Phantom Buttons to control groups of zones (faster if setting entire groups than individual one-by-one zone turning on/off)
+- SGS command support for Set GRAFIK Eye Scene (applies to GRAFIK Eye Interfaces and Sivoia Controls)
 
-- An SDL command (Set Dimmer Level) applies to Dimmers, an SSL command (Set Switch Level) applies to Switches, and an SGS command (Set GRAFIK Eye Scene) applies to GRAFIK Eye Interfaces and Sivoia Controls.
+- remember the previous dimmer level settings, use as defaults for on if not configured
 
-- See if we can auto-discover what lights are configured with ALL ON, poll for state, then ALL OFF.
-
-- Expose FLASH mode for allowing alarm systems to trigger flashing lights
-
-- Constantly monitor RS232 for status updates...note in manual: "If an external RS232 system is not setup to continuously monitor the RS232 port, asking the RadioRA System for status is a useful way to monitor RadioRA System actions or get an updated status. However, using the Serial Device in this manner will cause you to miss MBP commands (Master Control Button Press) and LZC commands (Local Zone Change)."
-
-- Support for GRAFIK Eye and Sivoia control units (including scenes)
+- support for asynchronous ZMP zone monitoring (with ZMPMON / ZMPMOFF support) ... Constantly monitor RS232 for status updates...note in manual: "If an external RS232 system is not setup to continuously monitor the RS232 port, asking the RadioRA System for status is a useful way to monitor RadioRA System actions or get an updated status. However, using the Serial Device in this manner will cause you to miss MBP commands (Master Control Button Press) and LZC commands (Local Zone Change)."

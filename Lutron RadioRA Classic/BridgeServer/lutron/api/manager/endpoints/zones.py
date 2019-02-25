@@ -1,5 +1,4 @@
 import os
-import io
 import json
 import time
 import serial
@@ -19,7 +18,7 @@ log = logging.getLogger(__name__)
 #  - for each zone, what zone type of switch/dimmer it is (default to dimmer)
 #  - we should allow client to specify if they want ALL the zones (e.g. including Unassigned)
 
-ns = api.namespace('zones', description='RadioRA Classic Zones')
+ns = api.namespace('zones', description='Zone operations')
 
 # FIXME: share all the serial code in a separate file with command.py
 tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
@@ -55,40 +54,30 @@ def writeSerialCommand(command):
     ser.reset_input_buffer()
     ser.write((command + "\r\n").encode('utf-8'))
 
-# NOTE: a SerialException is thrown if the read takes longer than the configured timeout
-# NOTE: we should probably have a separate thread reading the asynchronous serial messages
-#       since there are state updates that a write/read model won't catch
+# not the most efficient reading one byte at a time, but it is way faster than
+# waiting for a 1 or 2 second timeout on every read. This should be fixed in
+# the future.
 def readSerialData():
     start = time.time()
-
-    # FIXME: this is actually reading, but not completing and waiting for timeout!
-    # big performance improvement can be had here
-
     result = result = _readline(ser)
     while ser.in_waiting:
         result = result + _readline(ser)
     result = result.decode('utf-8').upper()
     end = time.time()
+
     print(">>>>> Serial read ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
     return result
 
-
 ####
 
-# ZMP response from either ZMPI request *OR* from response stream
-#  ZMP,010000001000000000000000000000XX
-def handleZMPResponse():
-    # NOTE: returns X if not assigned!
-    return
-
-def getZMPStates():
+# FIXME: this will not work on Lutron installations where a Chronos System Bridge or
+# Timeclock is setup to be a System Bridge where TWO zone maps will be returned (a total of 64 zones)
+def getAllZoneStates():
     writeSerialCommand("ZMPI")
     zoneStates = readSerialData().lstrip('ZMP')
     return zoneStates
 
-def addZoneStates(zones, stateZMP):
-    log.info("Entered: addZoneStates()")
-
+def mergeZoneStates(zones, stateZMP):
     # NOTE: ZMP always returns state for all 32 zones, PLUS if it is a bridged system
     # it will return two sets, with ",S1" and ",S2" at the end of the result
     # this does not support bridged systems currently
@@ -109,7 +98,7 @@ def addZoneStates(zones, stateZMP):
             zones.state = 'off'
         elif stateZMP[zones.zone] == '1':
             zones.state = 'on'
-        elif stateZMP[item.zone] == 'X':
+        elif stateZMP[zones.zone] == 'X':
             # force type to be Unassigned (since we know it isn't assigned to a dimmer or switch)
             zones.zonetypeid = '0' # Unassigned
             zones.state = 'Unknown'
@@ -120,148 +109,86 @@ def addZoneStates(zones, stateZMP):
 
 @ns.route('/')
 class ZoneCollection(Resource):
-
+    
     @api.marshal_list_with(zone)
     def get(self):
-        # FIXME: shouldn't this also merge in the results from RS-232???
+        # read zone configuration from DB
         zones = Zone.query.all()
-        zones = addZoneStates(zones, getZMPStates())        
-        return zones    
-
-    # FIXME: should creating zones exist?  There are a fixed number of Zones for RA-RS232 and
-    # Chronos devices (per system)
-    #
-    # I think there should only possible be a zone update command, which allows you to change:
-    #  zonetype
-    #  **MAYBE** zone name
-#    @api.response(201, 'Zone successfully created.')
-#    @api.expect(zone)
-#    def post(self):
-#        """
-#        Creates a new zone.
-#        """
-#        data = request.json
-#        create_zone(data)
-#        return None, 201
-
-#####
-
-def sendAll(command, suffix):
-    for zone in range(16):
-        writeSerialCommand(command + "," + zone + "," + suffix)
-
-# FIXME: test of more direct control of single zones...using ZSI command
-@ns.route('/<int:id>/control')
-@api.response(404, 'Zone not found.')
-class ZoneItemControl(Resource):
-
-    @api.marshal_with(zone)
-    def get(self, id):
-        try:
-            sendAll("SDL", "100")
-
-            writeSerialCommand("ZSI")
-            zoneStates = readSerialData()
-
-            # FIXME: how is 404 triggered?  What if I send zone 77?
-
-            log.info("Zone States: " + zoneStates)
-            print("Zone States: " + zoneStates + "\n")
-
-            iZone = addZoneStates(Zone.query.filter(Zone.id == id).one(), getZMPStates())
-            return iZone
-
-        except Exception as e:
-            log.exception("Unexpected error")
-            return None, 500  # 500 Internal Server Error
-
-    @api.expect(zone)
-    @api.response(204, 'Zone successfully updated.')
-    def put(self, zone):
-        """
-        Sets the switch on or dimmer level
-
-        Use this method to change attributes of a zone.
-
-        * Send a JSON object with the new name in the request body.
-
-        ```
-        {
-          "zone": "Zone Number"
-          "state": "on/off"
-          "level": "Dimmer level (optional)"
-        }
-        ```
-
-        * Specify the ID of the zone to control in the request URL path.
-        """
-        try:
-            data = request.json
-            print(">>>> received {}}\n".format(data))
-
-            zoneIsDimmer = True
-
-            dimmerLevel = 50
-            state = OFF
-
-            # NOTE: the SDL/SSL commands do not send a response
-            if zoneIsDimmer == True:
-                # if state = 'on' then dimmerLevel = 100 ???
-                # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
-                writeSerialCommand("SDL," + zone + "," + dimmerLevel)
-            else:
-                # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
-                writeSerialCommand("SSL," + zone + "," + state)
-            # FIXME: SGS for Grafik Eye
-            #
-            # FIXME: we should probably return the same content as the SRI / requests
-            return None, 204
-
-        except Exception as e:
-            log.error("Unexpected error:" + e)
-            return None, 500  # 500 Internal Server Error
-
+        # merge current states for each zone from hardware module
+        zones = mergeZoneStates(zones, getAllZoneStates())        
+        return zones
 
 ####
 
 @ns.route('/<int:id>')
-@api.response(404, 'Zone not found.')
+@api.response(404, 'Zone not found')
 class ZoneItem(Resource):
 
     @api.marshal_with(zone)
     def get(self, id):
-        iZone = addZoneStates(Zone.query.filter(Zone.id == id).one(), getZMPStates())
-        return iZone
+        return mergeZoneStates(Zone.query.filter(Zone.id == id).one(), getAllZoneStates())
 
     @api.expect(zone)
-    @api.response(204, 'Zone successfully updated.')
+    @api.response(204, 'Zone successfully updated')
     def put(self, id):
         """
-        Updates a zone.
+        Update attributes for a zone
 
-        Use this method to change attributes of a zone.
-
-        * Send a JSON object with the new name in the request body.
+        Send a JSON object with the new name in the request body with the ID of the zone to modify in the request URL path.
 
         ```
         {
-          "name": "Zone Name"
-          "zone": "Zone Number"
-          "system": "System Number"
-          "zonetype_id": "Zone type ID"
+          "name": "Zone name"
+          "zonetypeid": "Zone type identifier [0, 1, 2, or 3]"
+          "default_level": "Default level for dimmer (not yet supported)"
         }
         ```
-
-        * Specify the ID of the zone to modify in the request URL path.
         """
         data = request.json
         update_zone(id, data)
         return None, 204
 
-#    @api.response(204, 'Zone successfully deleted.')
-#    def delete(self, id):
-#        """
-#        Deletes a zone.
-#        """
-#        delete_zone(id)
-#        return None, 204
+# FIXME: I'm not sure we want REST Get with side effect, but it is very convenient!
+@ns.route('/<int:id>/dim/<level>')
+class ZoneDimmerLevel(Resource):
+    def get(self, zone, level):
+        # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
+        writeSerialCommand("SDL," + zone + "," + level)
+        return {'lutron': readSerialData()}
+
+@ns.route('/<int:id>/switch/on')
+class ZoneSwitchOn(Resource):
+    def get(self, zone):
+        # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
+        writeSerialCommand("SSL," + zone + ",ON")
+        return {'lutron': readSerialData()}
+
+@ns.route('/<int:id>/switch/off')
+class ZoneSwitchOff(Resource):
+    def get(self, zone):
+        writeSerialCommand("SSL," + zone + ",OFF")
+        return {'lutron': readSerialData()}
+
+@ns.route('/all/on')
+class AllOn(Resource):
+    def get(self):
+        writeSerialCommand("BP,16,ON")
+        return {'lutron': readSerialData()}
+
+@ns.route('/all/off')
+class AllOff(Resource):
+    def get(self):
+        writeSerialCommand("BP,17,OFF")
+        return {'lutron': readSerialData()}
+
+@ns.route('/all/flash/on')
+class FlashOn(Resource):
+    def get(self):
+        writeSerialCommand("SFM,16,ON")
+        return {'lutron': readSerialData()}
+
+@ns.route('/all/flash/off')
+class FlashOff(Resource):
+    def get(self):
+        writeSerialCommand("SFM,17,OFF")
+        return {'lutron': readSerialData()}

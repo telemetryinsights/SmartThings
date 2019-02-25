@@ -11,8 +11,7 @@ from lutron.database.models import Zone, Zonetype
 
 log = logging.getLogger(__name__)
 
-ns = api.namespace('command', description='RadioRA Classic command operations')
-
+ns = api.namespace('command', description='Raw RadioRA Classic command operations (*DEPRECATED*)')
 
 # FIXME: share all the serial code in a separate file with command.py
 tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
@@ -48,20 +47,16 @@ def writeSerialCommand(command):
     ser.reset_input_buffer()
     ser.write((command + "\r\n").encode('utf-8'))
 
-# NOTE: a SerialException is thrown if the read takes longer than the configured timeout
 # NOTE: we should probably have a separate thread reading the asynchronous serial messages
 #       since there are state updates that a write/read model won't catch
 def readSerialData():
     start = time.time()
-
-    # FIXME: this is actually reading, but not completing and waiting for timeout!
-    # big performance improvement can be had here
-
     result = _readline(ser)
     while ser.in_waiting:
         result = result + _readline(ser)
     result = result.decode('utf-8')
     end = time.time()
+
     print(">>>>> Serial read ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
     return result
 
@@ -77,6 +72,12 @@ class ZMPI(Resource):
 class ApiLutronCmd(Resource):
     def get(self, cmd):
         writeSerialCommand(cmd)
+        return {'lutron': readSerialData()}
+
+@ns.route('/<cmd>/zone/<zone>/level/<level>')
+class ApiLutronMultiCmd(Resource):
+    def get(self, cmd, zone, level):
+        writeSerialCommand(cmd + "," + zone + "," + level)
         return {'lutron': readSerialData()}
 
 @ns.route('/<cmd>/zone/<zone>/level/<level>')

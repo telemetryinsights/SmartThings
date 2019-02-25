@@ -45,7 +45,12 @@ def main():
         log.error(">>>>> Serial device '%s' does not exist: set SERIAL_TTY environment variable to your /dev/tty interface", tty)
         exit
     else:
-        log.info('>>>>> Communicating with Lutron via serial %s', tty)
+        log.info('>>>>> Communicating with Lutron RadioRA Classic hardware module via serial %s', tty)
+
+
+    # FIXME: set the RS232 device into a default space
+    # sendSerialCommand("VERI") -> REV,M3.14,S1.01    print it out
+    # sendSerialCommand("SFL,17,OFF") # force flashing mode off
 
     log.info('>>>>> Starting server at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)
