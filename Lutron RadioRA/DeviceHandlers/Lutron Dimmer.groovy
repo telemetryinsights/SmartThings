@@ -11,11 +11,10 @@
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed 
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License 
  *  for the specific language governing permissions and limitations under the License. 
- * 
  */ 
  
 metadata { 
-    definition (name: "Lutron Dimmer", author: "Stephen Harris", namespace: "homemations") {  
+    definition (name: "Lutron RadioRA Dimmer", author: "Stephen Harris", namespace: "homemations") {  
 		capability "Switch Level"
 		capability "Actuator"
 		capability "Switch"
@@ -77,7 +76,7 @@ def parse(description) {
 	def results = []
 	def map = description
 	if (description instanceof String)  {
-		log.debug "Hue Bulb stringToMap - ${map}"
+		log.debug "RadioRA stringToMap - ${map}"
 		map = stringToMap(description)
 	}
 
@@ -89,7 +88,7 @@ def parse(description) {
 
 void on() {
 	log.info "Entered Method: on()"
-    
+
     parent.on(this)
 }
 
@@ -115,7 +114,7 @@ def verifyPercent(percent) {
     else if (percent >= 0 && percent <= 100) {
         return true
     } else {
-        log.warn "Dimmer Level of $percent is not in the range of 0-100"
+        log.warn "Dimmer level of $percent is not in the range of 0-100%"
         return false
     }
 }

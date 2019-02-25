@@ -1,5 +1,5 @@
 /** 
-*  Lutron RadioRA Platform Manager via Raspberry PI Gateway by Stephen Harris (stephen@homemations.com) 
+*  Lutron RadioRA Classic SmartThings Bridge by Stephen Harris (stephen@homemations.com) 
 *   
 *  Copyright 2018 Homemations, Inc 
 * 
@@ -11,17 +11,16 @@
 *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed 
 *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License 
 *  for the specific language governing permissions and limitations under the License. 
-* 
 */ 
  
 // import helper libraries not a part of the SmartThings SDK
 import java.text.DecimalFormat
  
 definition( 
-    name: "Lutron RadioRa (Connect)", 
+    name: "Lutron RadioRA Classic SmartThings Bridge (Connect)", 
     namespace: "Homemations", 
     author: "Stephen Harris", 
-    description: "This smartapp installs the Lutron RadioRA Platform Manager via Raspberry PI Gateway App that will manage all Lutron zones", 
+    description: "This SmartApp installs the Lutron RadioRA Classic SmartThings Bridge integration for managing Lutron RadioRA Classic zones", 
     category: "Convenience", 
     iconUrl: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png", 
     iconX2Url: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn@2x.png", 
@@ -29,13 +28,13 @@ definition(
     singleInstance: true) 
 
 preferences {	
-    page(name: "preferenceLutronManager", title: "Lutron RadioRa")    
-    page(name: "preferenceLutronValidation", title: "Lutron RadioRa")    
-    page(name: "preferenceLutronConfiguration", title: "Lutron RadioRa")
+    page(name: "preferenceLutronManager", title: "Lutron RadioRA Classic Bridge")    
+    page(name: "preferenceLutronValidation", title: "Lutron RadioRA Classic Bridge")    
+    page(name: "preferenceLutronConfiguration", title: "Lutron RadioRA Classic Bridge")
 }
 
 // Functions to return configuration info 
-def appVer() { return "1.0.0" }
+def appVer() { return "1.0.1" }
 def getHostAddress() {return platformIP + ":" + platformPort}
 def getPlatformUri() {return "/api"}
 
@@ -47,25 +46,25 @@ def preferenceLutronManager() {
     atomicState.zoneNames = null
     
     def showUninstall = (platformIP != null && platformPort != null)
-	return dynamicPage(name: "preferenceLutronManager", title: "Connect to the Lutron RadioRA Platform", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
+	return dynamicPage(name: "preferenceLutronManager", title: "Connect to the Lutron RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
 		section() {
-        	paragraph "Lutron RadioRa (Connect)\n" +
+        	paragraph "Lutron RadioRA Classic SmartThings Bridge (Connect)\n" +
                 "Copyright\u00A9 2018 Homemations, Inc.\n" +
             	"Version: ${appVer()}",
                 image: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png"
     	}
     
     	section("Platform Credentials") {
-        	input("platformIP", "string", title:"IP Address for the Raspberry PI Gateway ", description: "that connects to the Lutron serial port", required: true, displayDuringSetup: true) 
-        	input("platformPort", "string", title:"Port # for the Raspberry PI Gateway ", description: "that connects to the Lutron serial port", required: true, displayDuringSetup: true) 		
+        	input("platformIP", "string", title:"IP address for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 
+        	input("platformPort", "string", title:"Port # for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 		
         }
         
         section("Platform Polling"){
-			input(name: "polling", type: "enum", title: "Polling Interval (Minutes)?", description: "The interval to poll the platform for changes", options: [1,5,10,15,30], defaultValue: 5)
+			input(name: "polling", type: "enum", title: "Polling Interval (Minutes)", description: "Number of minutes between checking the RadioRA Classic SmartThings Bridge for changes", options: [1,5,10,15,30], defaultValue: 5)
 		}
 
 		section("Platform Push Notifications") {
-        	input "preferencePushAlerts", "bool", required: false, title: "Push notifications when Lutron Zones change?", defaultValue: false
+        	input "preferencePushAlerts", "bool", required: false, title: "Push notifications when RadioRA Classic Zones change?", defaultValue: false
     	}
 	}
 }
@@ -79,37 +78,36 @@ def preferenceLutronValidation() {
 	
 	getZones()
 	
-	// Wait for a connection to the Raspberry PI platform, with timeout set above; need zones list for success
+	// wait for a connection to the Bridge, with timeout set above; need zones list for success
 	while (atomicState?.zoneNames == null) {
 		if (now().toInteger() > maxTimeout) {
 			def pattern = "#,###,###"
 			def timeoutFormat = new DecimalFormat(pattern)
-			log.warn "Max timeout of " + timeoutFormat.format(timeoutinMilliSeconds) + "mS reached waiting for a response from the Raspberry PI gateway"
+			log.warn "Max timeout of " + timeoutFormat.format(timeoutinMilliSeconds) + " ms reached waiting for a response from the RadioRA Classic SmartThings Bridge"
 			break
 		}
 	}
 	
 	if (atomicState?.zoneNames != null) { 
-		// Successful connection to Lutron Platform via the Raspberry PI Gateway
-		log.warn "Successfully connected to the Lutron Platform via the Raspberry PI Gateway"
+		log.warn "Successfully connected to the RadioRA Classic SmartThings Bridge"
 		
 		return dynamicPage(name: "preferenceLutronConfiguration", title: "Lutron Zones Configuration", install: true, uninstall: true) {
-			section("Select Your Lutron Zones") {
-				paragraph "Tap below to see the list of Lutorn RadioRA Zones available from your Lutron platform and select the ones you want to connect to SmartThings."
+			section("Select Your RadioRA Classic Zones") {
+				paragraph "Tap below to see the list of Zones accessible your RadioRA Classic SmartThings Bridge and select those you want to connect to SmartThings."
 				input(name: "lutronZones", title:"Zones selected", type: "enum", required:true, multiple:true, description: "Tap to choose", metadata:[values: atomicState.zoneNames.sort {it.value}])
 			}
 		}
 	}
 	else {
-		log.error "Unable to connect to the Lutron platform via the Raspberry PI gateway"
+		log.error "Unable to connect to the RadioRA Classic SmartThings Bridge"
 		
-		return dynamicPage(name: "preferenceLutronValidation", title: "Lutron Platform Failure", uninstall:false, install: false) {
+		return dynamicPage(name: "preferenceLutronValidation", title: "RadioRA Bridge Connection Failure", uninstall:false, install: false) {
 			section() {
-				paragraph "Unable to connect to the Lutron platform."
+				paragraph "Unable to connect to the RadioRA Classic SmartThings Bridge."
 				paragraph image: "https://s3-us-west-1.amazonaws.com/iriesolutions/SmartThings/icons/Lutron/lutron-icn.png",
 					title: "Connection Failure",
 					required: true,
-					"Check to insure that the LAN IP and Port entered is correct and the Raspberry PI gateway is operational.  Press back to verify settings and try again"            
+					"Ensure the IP address and port configured for your RadioRA Classic SmartThings Bridge is correct and that the Bridge is running. Press back to verify settings and try again"            
 			}
 		}
 	}
@@ -131,7 +129,7 @@ def getZones(){
 		def hubAction = new physicalgraph.device.HubAction(httpRequest, null, [callback: zonesCallbackHandler])
 		return sendHubCommand(hubAction)
 	} catch (all) {
-		log.error "Cannot connect to the Raspberry PI API services gateway. Message: " + all
+		log.error "Cannot connect to the RadioRA Classic SmartThings Bridge. Message: " + all
 	}
     return
 }
@@ -167,10 +165,10 @@ def zonesCallbackHandler(hubResponse) {
 			atomicState.zones = zones
 			atomicState.zoneNames = zoneNames
 		} else {
-			log.error "Not a 200 Response from the Raspberry PI API services gateway"
+			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge"
 		}
 	} catch (all) {
-		log.error "No response from the Raspberry PI API services gateway. Message: " + all
+		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
 	}
 }
 
@@ -221,7 +219,7 @@ def initialize() {
     }
             
     // Send activity feeds to tell that lutron radiora is connected to smartthings
-	def notificationMessage = "Lutron RadioRa is now connected to SmartThings"
+	def notificationMessage = "Lutron RadioRA Classic is now connected to SmartThings"
     sendPush(notificationMessage)
 
 	// atomicState.timeSendPush = null
@@ -241,19 +239,19 @@ def createZoneDevices() {
         if(!device) {
             if (zoneTypeid == 3) {
                 device = addChildDevice(app.namespace, "Lutron Grafik Eye Scene", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron Grafik Eye Scene"])
-               	log.debug "Created ${device.displayName} with id $dni as a lutron grafik eye scene "
+               	log.debug "Created ${device.displayName} with id $dni as a RadioRA Grafik Eye scene "
             } else if (zoneTypeid == 2) {
-            	device = addChildDevice(app.namespace, "Lutron Dimmer", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron Dimmer"])
-                log.debug "Created ${device.displayName} with id $dni as a lutron dimmer"
+            	device = addChildDevice(app.namespace, "RadioRA Classic Dimmer", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron Dimmer"])
+                log.debug "Created ${device.displayName} with id $dni as a RadioRA Classic dimmer"
             } else {
-            	device = addChildDevice(app.namespace, "Lutron switch", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron switch"])   	
-                log.debug "Created ${device.displayName} with id $dni as a lutron switch"
+            	device = addChildDevice(app.namespace, "RadioRA Classic Switch", dni, null, ["label":"${atomicState.zones[dni].name}" ?: "Lutron switch"])   	
+                log.debug "Created ${device.displayName} with id $dni as a RadioRA Classic switch"
 			}
         } else {
             log.warn "found ${device.displayName} with id $dni already exists"
         }
     }
-    log.trace "Created/Found ${zones.size()} lutron zones."
+    log.trace "Created/Found ${zones.size()} Lutron RadioRA Classic zones."
 }
 
 def deleteZoneDevices() {
@@ -287,7 +285,7 @@ def sendCmd(cmd,zone,level){
 		
 		sendHubCommand(new physicalgraph.device.HubAction(httpRequest, null, [callback: sendCmdCallBack]))
 	} catch (all) {
-		log.error "Cannot connect to the Raspberry PI API services gateway. Message: " + all
+		log.error "Cannot connect to the RadioRA Classic SmartThings Bridge. Message: " + all
 	}
 }
 
@@ -303,12 +301,12 @@ def sendCmdCallBack(hubResponse) {
 
 		log.debug "lanRequest status response: $status" 
 		if (status == 200) {
-        	log.warn "Raspberry PI API returned 200"
+        	log.warn "RadioRA Classic Bridge API returned 200"
 		} else {
-			log.error "Not a 200 Response from the Raspberry PI API services gateway"
+			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge"
 		}
 	} catch (all) {
-		log.error "No response from the Raspberry PI API services gateway. Message: " + all
+		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
 	}
 }
 
@@ -369,7 +367,7 @@ def pollZones(){
 		def hubAction = new physicalgraph.device.HubAction(httpRequest, null, [callback: pollCallbackHandler])
         sendHubCommand(hubAction)
 	} catch (all) {
-		log.error "Cannot connect to the Raspberry PI API services gateway. Message: " + all
+		log.error "Connection to RadioRA Classic SmartThings Bridge failed. Message: " + all
 	}
     return
 }
@@ -412,7 +410,7 @@ def pollCallbackHandler(hubResponse) {
                 def smartthingsState = child.currentState("switch")?.value
                 
                 if ((lutronState != null) && (lutronState != smartthingsState)) {
-                	log.debug "Child device: ${childDevice}, Lutron State: ${lutronState}, Smartthing State: ${smartthingsState}"
+                	log.debug "Child device: ${childDevice}, RadioRA State: ${lutronState}, SmartThings State: ${smartthingsState}"
 
                 	if (smartthingsState == "on") {
                     	log.debug "Send ${childDevice} Switch On message"
@@ -424,9 +422,9 @@ def pollCallbackHandler(hubResponse) {
             	}
             }
     	} else {
-			log.error "Not a 200 Response from the Raspberry PI API services gateway"
+			log.error "Not a 200 Response from the RadioRA Classic SmartThings Bridge"
 		}
 	/* } catch (all) {
-		log.error "No response from the Raspberry PI API services gateway. Message: " + all
+		log.error "No response from the RadioRA Classic SmartThings Bridge. Message: " + all
 	}*/
 }
