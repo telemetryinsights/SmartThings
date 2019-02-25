@@ -34,9 +34,6 @@ ser = serial.Serial(tty_path,
                     rtscts=True,
                     timeout=tty_timeout
                     )
-# fixes serial readline handling of \r (used to wait on timeout)
-#ser = io.TextIOWrapper(io.BufferedRWPair(serRaw, serRaw, 1),  
-#                       newline = '\r', line_buffering = True)
 
 def _readline(ser_io):
     eol = b'\r'
@@ -46,13 +43,14 @@ def _readline(ser_io):
         c = ser_io.read(1)
         if c:
             if c == eol:
+                line += '|'
                 break
             line += c
         else:
             break
     return bytes(line)
 
-def sendSerialCommand(command):
+def writeSerialCommand(command):
     print(">>>>> Serial write: {}".format(command))
     ser.reset_input_buffer()
     ser.write((command + "\r\n").encode('utf-8'))
@@ -60,27 +58,18 @@ def sendSerialCommand(command):
 # NOTE: a SerialException is thrown if the read takes longer than the configured timeout
 # NOTE: we should probably have a separate thread reading the asynchronous serial messages
 #       since there are state updates that a write/read model won't catch
-def readSerialResult():
+def readSerialData():
     start = time.time()
 
     # FIXME: this is actually reading, but not completing and waiting for timeout!
     # big performance improvement can be had here
 
-    result = ser.readline().decode('utf-8')
+    result = result = _readline(ser)
+    while ser.in_waiting:
+        result = result + _readline(ser)
+    result = result.decode('utf-8').upper()
     end = time.time()
-    print(">>>>> Serial reply ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
-    return result
-
-# read a single serial line (until a \r)
-def readSerialLine():
-    start = time.time()
-
-    # FIXME: this is actually reading, but not completing and waiting for timeout!
-    # big performance improvement can be had here
-
-    result = _readline(ser).decode('utf-8')
-    end = time.time()
-    print(">>>>> Serial reply ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
+    print(">>>>> Serial read ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
     return result
 
 
@@ -93,8 +82,8 @@ def handleZMPResponse():
     return
 
 def getZMPStates():
-    sendSerialCommand("ZMPI")
-    zoneStates = readSerialLine().upper().lstrip('ZMP')
+    writeSerialCommand("ZMPI")
+    zoneStates = readSerialData().lstrip('ZMP')
     return zoneStates
 
 def addZoneStates(zones, stateZMP):
@@ -134,11 +123,17 @@ class ZoneCollection(Resource):
 
     @api.marshal_list_with(zone)
     def get(self):
+        # FIXME: shouldn't this also merge in the results from RS-232???
         zones = Zone.query.all()
         zones = addZoneStates(zones, getZMPStates())        
         return zones    
 
-    # FIXME: should creating zones exist?  There are a fixed number of Zones for RA-RS232 and Chronos devices (per system)
+    # FIXME: should creating zones exist?  There are a fixed number of Zones for RA-RS232 and
+    # Chronos devices (per system)
+    #
+    # I think there should only possible be a zone update command, which allows you to change:
+    #  zonetype
+    #  **MAYBE** zone name
 #    @api.response(201, 'Zone successfully created.')
 #    @api.expect(zone)
 #    def post(self):
@@ -153,7 +148,7 @@ class ZoneCollection(Resource):
 
 def sendAll(command, suffix):
     for zone in range(16):
-        sendSerialCommand(command + "," + zone + "," + suffix)
+        writeSerialCommand(command + "," + zone + "," + suffix)
 
 # FIXME: test of more direct control of single zones...using ZSI command
 @ns.route('/<int:id>/control')
@@ -165,8 +160,8 @@ class ZoneItemControl(Resource):
         try:
             sendAll("SDL", "100")
 
-            sendSerialCommand("ZSI")
-            zoneStates = readSerialResult().replace("\r","|")
+            writeSerialCommand("ZSI")
+            zoneStates = readSerialData()
 
             # FIXME: how is 404 triggered?  What if I send zone 77?
 
@@ -213,10 +208,10 @@ class ZoneItemControl(Resource):
             if zoneIsDimmer == True:
                 # if state = 'on' then dimmerLevel = 100 ???
                 # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
-                sendSerialCommand("SDL," + zone + "," + dimmerLevel)
+                writeSerialCommand("SDL," + zone + "," + dimmerLevel)
             else:
                 # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
-                sendSerialCommand("SSL," + zone + "," + state)
+                writeSerialCommand("SSL," + zone + "," + state)
             # FIXME: SGS for Grafik Eye
             #
             # FIXME: we should probably return the same content as the SRI / requests
@@ -235,7 +230,6 @@ class ZoneItem(Resource):
 
     @api.marshal_with(zone)
     def get(self, id):
-        # FUTURE: note that ZSI command might be faster/more efficient here than filter the states
         iZone = addZoneStates(Zone.query.filter(Zone.id == id).one(), getZMPStates())
         return iZone
 
