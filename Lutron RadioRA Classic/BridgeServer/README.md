@@ -34,6 +34,7 @@ NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interf
 * does not support native 15 Phantom Buttons or Room/Scene features of the Lutron hardware modules
 * does not support fade time for dimmer state changes
 * does not support setting LED lights on other master controls
+* there is no security for the port, anyone with access can control the lights
 
 ### FUTURE
 
