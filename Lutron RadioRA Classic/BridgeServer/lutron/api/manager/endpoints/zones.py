@@ -1,4 +1,5 @@
 import os
+import io
 import json
 import time
 import serial
@@ -16,6 +17,7 @@ log = logging.getLogger(__name__)
 # FIXME: what must be configured
 #  - which /dev/tty device to use
 #  - for each zone, what zone type of switch/dimmer it is (default to dimmer)
+#  - we should allow client to specify if they want ALL the zones (e.g. including Unassigned)
 
 ns = api.namespace('zones', description='RadioRA Classic Zones')
 
@@ -32,28 +34,55 @@ ser = serial.Serial(tty_path,
                     rtscts=True,
                     timeout=tty_timeout
                     )
+# fixes serial readline handling of \r (used to wait on timeout)
+#ser = io.TextIOWrapper(io.BufferedRWPair(serRaw, serRaw, 1),  
+#                       newline = '\r', line_buffering = True)
+
+def _readline(ser_io):
+    eol = b'\r'
+    leneol = len(eol)
+    line = bytearray()
+    while True:
+        c = ser_io.read(1)
+        if c:
+            if c == eol:
+                break
+            line += c
+        else:
+            break
+    return bytes(line)
 
 def sendSerialCommand(command):
     print(">>>>> Serial write: {}".format(command))
-    start = time.time()
     ser.reset_input_buffer()
-    ser.write(str.encode(command + "\r\n"))
-    end = time.time()
-    print(">>>>> ... write took {0:.0f} ms)".format(1000 *(end-start)))
+    ser.write((command + "\r\n").encode('utf-8'))
 
 # NOTE: a SerialException is thrown if the read takes longer than the configured timeout
 # NOTE: we should probably have a separate thread reading the asynchronous serial messages
 #       since there are state updates that a write/read model won't catch
-def receiveSerialResult():
+def readSerialResult():
     start = time.time()
 
     # FIXME: this is actually reading, but not completing and waiting for timeout!
     # big performance improvement can be had here
-    
+
     result = ser.readline().decode('utf-8')
     end = time.time()
-    print(">>>>> Serial reply: {0} (after {1:.0f} ms)".format(result, 1000 *(end-start)))
+    print(">>>>> Serial reply ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
     return result
+
+# read a single serial line (until a \r)
+def readSerialLine():
+    start = time.time()
+
+    # FIXME: this is actually reading, but not completing and waiting for timeout!
+    # big performance improvement can be had here
+
+    result = _readline(ser).decode('utf-8')
+    end = time.time()
+    print(">>>>> Serial reply ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
+    return result
+
 
 ####
 
@@ -65,8 +94,7 @@ def handleZMPResponse():
 
 def getZMPStates():
     sendSerialCommand("ZMPI")
-    zoneStates = receiveSerialResult().replace("\r","|")
-    zoneStates = zoneStates.upper().lstrip('ZMP')
+    zoneStates = readSerialLine().upper().lstrip('ZMP')
     return zoneStates
 
 def addZoneStates(zones, stateZMP):
@@ -138,7 +166,7 @@ class ZoneItemControl(Resource):
             sendAll("SDL", "100")
 
             sendSerialCommand("ZSI")
-            zoneStates = receiveSerialResult().replace("\r","|")
+            zoneStates = readSerialResult().replace("\r","|")
 
             # FIXME: how is 404 triggered?  What if I send zone 77?
 
@@ -174,7 +202,7 @@ class ZoneItemControl(Resource):
         """
         try:
             data = request.json
-            print ">>>> received " + data + "\n"
+            print(">>>> received {}}\n".format(data))
 
             zoneIsDimmer = True
 
@@ -195,7 +223,6 @@ class ZoneItemControl(Resource):
             return None, 204
 
         except Exception as e:
-            print ">>>> WHAT\n"
             log.error("Unexpected error:" + e)
             return None, 500  # 500 Internal Server Error
 
