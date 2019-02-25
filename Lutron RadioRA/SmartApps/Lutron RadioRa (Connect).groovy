@@ -35,7 +35,7 @@ preferences {
 
 // Functions to return configuration info 
 def appVer() { return "1.0.1" }
-def getHostAddress() {return platformIP + ":" + platformPort}
+def getHostAddress() {return bridgeHost + ":" + bridgePort}
 def getPlatformUri() {return "/api"}
 
 // Dynamic Preferences to support configuration validation section
@@ -45,7 +45,7 @@ def preferenceLutronManager() {
     atomicState.zones = null
     atomicState.zoneNames = null
     
-    def showUninstall = (platformIP != null && platformPort != null)
+    def showUninstall = (bridgeHost != null && bridgePort != null)
 	return dynamicPage(name: "preferenceLutronManager", title: "Connect to the Lutron RadioRA Classic SmartThings Bridge", nextPage:"preferenceLutronValidation", uninstall: showUninstall) {
 		section() {
         	paragraph "Lutron RadioRA Classic SmartThings Bridge (Connect)\n" +
@@ -55,8 +55,8 @@ def preferenceLutronManager() {
     	}
     
     	section("Platform Credentials") {
-        	input("platformIP", "string", title:"IP address for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 
-        	input("platformPort", "string", title:"Port # for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 		
+        	input("bridgeHost", "string", title:"Hostname or IP address for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 
+        	input("bridgePort", "string", title:"Port # for your RadioRA Classic SmartThings Bridge ", description: "connected to the Lutron serial port", required: true, displayDuringSetup: true) 		
         }
         
         section("Platform Polling"){
@@ -120,7 +120,7 @@ def getZones(){
 		def httpRequest = [
 			method: "GET",
 			path: getPlatformUri() + "/zones/",
-			headers:	[
+			headers: [
 				HOST: getHostAddress(),
 				"Content-Type": "application/json",                        
 			]
@@ -135,7 +135,7 @@ def getZones(){
 }
 
 def zonesCallbackHandler(hubResponse) {
-	log.info "Entered Method: ZonesCallbackHandler"
+	log.info "Entered Method: zonesCallbackHandler()"
     log.info "Hub Response: " + hubResponse
     
     try {
