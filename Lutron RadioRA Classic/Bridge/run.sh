@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python bridge.py
+python radiora-classic-bridge.py
