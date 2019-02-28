@@ -13,7 +13,6 @@ DEFAULT_SERIAL_TTYS_TO_SEARCH = [ '/dev/tty.usbserial', '/dev/ttyUSB0', '/dev/tt
 class RadioRASerial(tty_path)
 
     def __init__(self, tty_path):
-        self.name = 'Unknown'
         self.tty_timeout = int(os.environ['SERIAL_TTY_TIMEOUT']) if 'SERIAL_TTY_TIMEOUT' in os.environ else 1
 
         ttys_to_search = DEFAULT_SERIAL_TTYS_TO_SEARCH
@@ -22,28 +21,48 @@ class RadioRASerial(tty_path)
 #        else:
 #            tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
 #            ttys_to_search = [ tty_path ]
- 
-        print(">>>>> Searching for RadioRA device on serial interfaces: {}".format(search_serial_ttys.join(',')))
+        self.__discover_radiora_serial__(ttys_to_search)
+
+    def __discover_radiora_serial__(self, ttys_to_search):
+        print(">>>>> Discovering RadioRA device on serial interfaces: {}".format(search_serial_ttys.join(',')))
         for tty in ttys_to_search:
-            if os.path.exists(tty):
-                ser = serial.Serial(tty,
-                                    baudrate=9600, # 9600 baud is required by RA-RS232
-                                    parity=serial.PARITY_NONE,
-                                    stopbits=serial.STOPBITS_ONE,
-                                    bytesize=serial.EIGHTBITS,
-                                    dsrdtr=True, rtscts=True,
-                                    timeout=self.tty_timeout)
+            try:
+                if not os.path.exists(tty):
+                    print(">>>>>    Serial device {} does not exist, skipping discovery".format(tty))
+                    continue
                 
-                self.serial = ser
-            else:
-                print(">>>>>    {} does not exist, skipping".format(tty))
+                self.serial = serial.Serial(tty,
+                                            baudrate=9600, # 9600 baud is required by RA-RS232
+                                            parity=serial.PARITY_NONE,
+                                            stopbits=serial.STOPBITS_ONE,
+                                            bytesize=serial.EIGHTBITS,
+                                            dsrdtr=True, rtscts=True,
+                                            timeout=self.tty_timeout)
+                self.writeCommand('VERI')
+                response = self.readline()
 
+                # response = REV,M<Master Revision>,S<Slave Revision>, e.g. REV,M3.14,S1.01
+                if ((response != None) and response.startsWith('REV,')):
+                    self.version = response
+                    self.tty = tty
+                    print('>>>>> Discovered Lutron RadioRA Classic at {} (ver={})'.format(self.tty,self.version))
+                    break
 
+                self.serial.close()
+                self.serial = None
+
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+
+            if self.serial != None:
+                self.serial.close()
+                self.serial = None
+            raise RuntimeError('Could not find RadioRA RS232 device at {}'.format(search_serial_ttys.join('')))
 
     def __repr__(self):
-        return '<RadioRA Classic RS232 : {} : {}>'.format(self.name, self.tty_path)
+        return '<RadioRA Classic RS232 : tty={} : ver={}>'.format(self.tty, self.version)
 
-    def readline():
+    def readline(self):
         eol = b'\r'
         leneol = len(eol)
         line = bytearray()
@@ -58,7 +77,7 @@ class RadioRASerial(tty_path)
                break
         return bytes(line)
 
-    def writeCommand(command):
+    def writeCommand(self, command):
         print(">>>>> Serial write: {}".format(command))
         self.serial.reset_input_buffer()
         self.serial.write((command + "\r\n").encode('utf-8'))
@@ -66,7 +85,7 @@ class RadioRASerial(tty_path)
     # not the most efficient reading one byte at a time, but it is way faster than
     # waiting for a 1 or 2 second timeout on every read. This should be fixed in
     # the future.
-    def readSerialData():
+    def readSerialData(self):
         start = time.time()
         result = result = _readline(ser)
         while self.serial.in_waiting:

@@ -2,6 +2,7 @@ import os
 import time
 import logging.config
 
+from lutron import serial
 from flask import Flask, Blueprint
 from lutron import settings
 from lutron.api.manager.endpoints.zones import ns as manager_zones_namespace
@@ -41,12 +42,13 @@ def initialize_app(flask_app):
 def main():
     initialize_app(app)
 
+    ser = RadioRASerial([tty])
+
     if not os.path.exists(tty):
         log.error(">>>>> Serial device '%s' does not exist: set SERIAL_TTY environment variable to your /dev/tty interface", tty)
         exit
     else:
         log.info('>>>>> Communicating with Lutron RadioRA Classic hardware module via serial %s', tty)
-
 
     # FIXME: set the RS232 device into a default space
     # sendSerialCommand("VERI") -> REV,M3.14,S1.01    print it out
