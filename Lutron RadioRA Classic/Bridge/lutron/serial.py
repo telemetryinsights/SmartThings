@@ -7,21 +7,28 @@ log = logging.getLogger(__name__)
 
 # unless an explicit SERIAL_TTY is specified to use, this searches by default across
 # a set of common TTYs to find a RadioRA Classic RS232 module
-DEFAULT_SERIAL_TTYS_TO_SEARCH = [ '/dev/tty.usbserial', '/dev/ttyUSB0', '/dev/ttyAMA0' ]
+DEFAULT_SERIAL_TTYS_TO_SEARCH = [ '/dev/ttyS0',         # Raspberry Pi mini UART GPIO
+                                  '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
+                                  '/dev/serial0',       # RPi 3 serial port alias 1
+                                  '/dev/serial1',       # RPi 3 serial port alias 2
+                                  '/dev/tty.usbserial', # typical MacOS USB serial adapter
+                                  '/dev/ttyUSB0',       # Linux USB serial 1
+                                  '/dev/ttyUSB1',       # Linux USB serial 2
+                                  '/dev/ttyUSB2'        # Linux USB serial 3
+                                ]
 
 class RadioRASerial:
 
-    def __init__(self, tty_path):
+    def __init__(self):
         self.tty_timeout = int(os.environ['SERIAL_TTY_TIMEOUT']) if 'SERIAL_TTY_TIMEOUT' in os.environ else 1
-
-        # NOTE: environment variables take precedent over our default search paths
-
         ttys_to_search = DEFAULT_SERIAL_TTYS_TO_SEARCH
-        if tty_path is not None:
-            ttys_to_search = [ tty_path ]
-#        else:
-#            tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
-#            ttys_to_search = [ tty_path ]
+
+        # NOTE: SERIAL_TTY environment variable overrides the default search paths
+        if 'SERIAL_TTY' in os.environ:
+            tty_config = os.environ['SERIAL_TTY']
+            print(">>>>> RadioRA Classic device search paths overridden by env variable SERIAL_TTY=" + tty_config)
+            ttys_to_search = ','.split(tty_config)
+
         self.__discover_radiora_serial__(ttys_to_search)
 
     def __discover_radiora_serial__(self, ttys_to_search):
@@ -79,16 +86,15 @@ class RadioRASerial:
                 line += c
             else:
                break
-        return bytes(line).decode("utf-8")
+        return bytes(line).decode('utf-8')
 
     def writeCommand(self, command):
-        print(">>>>> Serial write: {}".format(command))
+        print('>>>>> Serial write: {}'.format(command))
         self.serial.reset_input_buffer()
         self.serial.write((command + "\r\n").encode('utf-8'))
 
     # not the most efficient reading one byte at a time, but it is way faster than
-    # waiting for a 1 or 2 second timeout on every read. This should be fixed in
-    # the future.
+    # waiting for a 1 or 2 second timeout on every read. This could be improved in future.
     def readData(self):
         start = time.time()
         result = result = self._readline()
@@ -97,7 +103,7 @@ class RadioRASerial:
             result = result.decode('utf-8').upper()
         end = time.time()
 
-        print(">>>>> Serial read ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
+        print('>>>>> Serial read ({1:.0f} ms): {0}'.format(result, 1000 * (end-start)))
         return result
 
     
