@@ -24,4 +24,4 @@ RUN apk update \
  && TIMESTAMP="2019-02-26-00-00"
 
 #CMD [ "python3", "radiora-classic-bridge.py" ]
-CMD [ "./run.sh" ]
+CMD [ "/app/run.sh" ]
