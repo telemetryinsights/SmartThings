@@ -1,7 +1,5 @@
 import os
 import json
-import time
-import serial
 import logging
 
 from flask import request
@@ -14,67 +12,18 @@ from lutron.database.models import Zone, Zonetype
 log = logging.getLogger(__name__)
 
 # FIXME: what must be configured
-#  - which /dev/tty device to use
 #  - for each zone, what zone type of switch/dimmer it is (default to dimmer)
 #  - we should allow client to specify if they want ALL the zones (e.g. including Unassigned)
 
 ns = api.namespace('zones', description='Zone operations')
 
-# FIXME: share all the serial code in a separate file with command.py
-tty_path = os.environ['SERIAL_TTY'] if 'SERIAL_TTY' in os.environ else '/dev/ttyUSB0'
-tty_timeout = int(os.environ['SERIAL_TTY_TIMEOUT']) if 'SERIAL_TTY_TIMEOUT' in os.environ else 1
-
-ser = serial.Serial(tty_path,
-                    baudrate=9600, # 9600 baud is required by RA-RS232
-                    parity=serial.PARITY_NONE,
-                    stopbits=serial.STOPBITS_ONE,
-                    bytesize=serial.EIGHTBITS,
-                    dsrdtr=True,
-                    rtscts=True,
-                    timeout=tty_timeout
-                    )
-
-def _readline(ser_io):
-    eol = b'\r'
-    leneol = len(eol)
-    line = bytearray()
-    while True:
-        c = ser_io.read(1)
-        if c:
-            if c == eol:
-                line += '|'
-                break
-            line += c
-        else:
-            break
-    return bytes(line)
-
-def writeSerialCommand(command):
-    print(">>>>> Serial write: {}".format(command))
-    ser.reset_input_buffer()
-    ser.write((command + "\r\n").encode('utf-8'))
-
-# not the most efficient reading one byte at a time, but it is way faster than
-# waiting for a 1 or 2 second timeout on every read. This should be fixed in
-# the future.
-def readSerialData():
-    start = time.time()
-    result = result = _readline(ser)
-    while ser.in_waiting:
-        result = result + _readline(ser)
-    result = result.decode('utf-8').upper()
-    end = time.time()
-
-    print(">>>>> Serial read ({1:.0f} ms): {0}".format(result, 1000 * (end-start)))
-    return result
-
-####
+raSerial = None
 
 # FIXME: this will not work on Lutron installations where a Chronos System Bridge or
 # Timeclock is setup to be a System Bridge where TWO zone maps will be returned (a total of 64 zones)
 def getAllZoneStates():
-    writeSerialCommand("ZMPI")
-    zoneStates = readSerialData().lstrip('ZMP')
+    raSerial.writeCommand("ZMPI")
+    zoneStates = raSerial.readData().lstrip('ZMP')
     return zoneStates
 
 def mergeZoneStates(zones, stateZMP):
@@ -153,42 +102,42 @@ class ZoneItem(Resource):
 class ZoneDimmerLevel(Resource):
     def get(self, zone, level):
         # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
-        writeSerialCommand("SDL," + zone + "," + level)
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("SDL," + zone + "," + level)
+        return {'lutron': raSerial.readData()}
 
 @ns.route('/<int:id>/switch/on')
 class ZoneSwitchOn(Resource):
     def get(self, zone):
         # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
-        writeSerialCommand("SSL," + zone + ",ON")
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("SSL," + zone + ",ON")
+        return {'lutron': raSerial.readData()}
 
 @ns.route('/<int:id>/switch/off')
 class ZoneSwitchOff(Resource):
     def get(self, zone):
-        writeSerialCommand("SSL," + zone + ",OFF")
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("SSL," + zone + ",OFF")
+        return {'lutron': raSerial.readData()}
 
 @ns.route('/all/on')
 class AllOn(Resource):
     def get(self):
-        writeSerialCommand("BP,16,ON")
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("BP,16,ON")
+        return {'lutron': raSerial.readData()}
 
 @ns.route('/all/off')
 class AllOff(Resource):
     def get(self):
-        writeSerialCommand("BP,17,OFF")
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("BP,17,OFF")
+        return {'lutron': raSerial.readData()}
 
 @ns.route('/all/flash/on')
 class FlashOn(Resource):
     def get(self):
-        writeSerialCommand("SFM,16,ON")
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("SFM,16,ON")
+        return {'lutron': raSerial.readData()}
 
 @ns.route('/all/flash/off')
 class FlashOff(Resource):
     def get(self):
-        writeSerialCommand("SFM,17,OFF")
-        return {'lutron': readSerialData()}
+        raSerial.writeCommand("SFM,17,OFF")
+        return {'lutron': raSerial.readData()}
