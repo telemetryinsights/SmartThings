@@ -56,8 +56,8 @@ class RadioRASerial:
                 print('Unexpected error: ', sys.exc_info()[0])
                 raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
         
-        self.serial = None
-        raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
+        if self.version == None:
+            raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
 
 
 #    if not os.path.exists(tty):
