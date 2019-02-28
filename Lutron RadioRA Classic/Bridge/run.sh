@@ -1,9 +1,7 @@
 #!/bin/bash
 
-if [[ -z "$SERIAL_TTY" ]]; then
-    export SERIAL_TTY=/dev/tty.usbserial # update with /dev/tty* device connected to RadioRA hardware
-fi
-echo "RadioRA Classic Bridge is using serial $SERIAL_TTY"
+# NOTE: to override the Bridge's default /dev/tty* search path set SERIAL_TTY; can be comma separate list of devices to search
+# export SERIAL_TTY=/dev/tty.usbserial,/dev/serial0
 
 # NOTE: mapping of Mac /dev/tty* into Linux Docker environment is currently not supported by Docker (Feb 2019)
 
