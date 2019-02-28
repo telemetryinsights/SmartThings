@@ -46,7 +46,7 @@ class RadioRASerial:
                 if ((response != None) and response.startswith('REV,')):
                     self.version = response.lstrip('REV,')
                     self.tty = tty
-                    print('>>>>> Discovered Lutron RadioRA Classic at {} (ver={})'.format(self.tty,self.version))
+                    print('>>>>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty,self.version))
                     break
 
                 self.serial.close()
@@ -54,18 +54,17 @@ class RadioRASerial:
 
             except:
                 print('Unexpected error: ', sys.exc_info()[0])
+                raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
+        
+        self.serial = None
+        raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
 
-            if self.serial != None:
-                self.serial.close()
-                self.serial = None
-            raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
 
 #    if not os.path.exists(tty):
 #        log.error(">>>>> Serial device '%s' does not exist: set SERIAL_TTY environment variable to your /dev/tty interface", tty)
 
-
     def __repr__(self):
-        return '<RadioRA Classic RS232 : tty={} : ver={}>'.format(self.tty, self.version)
+        return '<RadioRA Classic RS232 : tty={} : version={}>'.format(self.tty, self.version)
 
     def _readline(self):
         eol = b'\r'
