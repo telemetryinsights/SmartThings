@@ -7,19 +7,20 @@ ARG BUILD_VERSION
 
 LABEL authors="Homemations"
 
+ADD . /app
+
 # install git and Python3 environment
 RUN apk update \
- && apk add --no-cache git python3 \
+ && apk add --no-cache python3 \
  && python3 -m ensurepip \
  && rm -r /usr/lib/python*/ensurepip \
  && pip3 install --upgrade pip setuptools \
- && pip install --no-cache-dir -r requirements.txt \
+ && pip install --no-cache-dir -r /app/requirements.txt \
  && cd /usr/bin \
  && ln -sf pip3 pip \
  && ln -sf python3 python \
- && rm -rf /root/.cache /var/cache
+ && rm -rf /root/.cache /var/cache \
+ && TIMESTAMP="2019-02-26-00-00"
 
-ADD . /app
-
-WORKDIR /appy
+WORKDIR /app
 CMD [ "python3", "radiora-classic-bridge.py" ]
