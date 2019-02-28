@@ -66,10 +66,6 @@ class RadioRASerial:
         if self.version == None:
             raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
 
-
-#    if not os.path.exists(tty):
-#        log.error(">>>>> Serial device '%s' does not exist: set SERIAL_TTY environment variable to your /dev/tty interface", tty)
-
     def __repr__(self):
         return '<RadioRA Classic RS232 : tty={} : version={}>'.format(self.tty, self.version)
 
@@ -105,8 +101,3 @@ class RadioRASerial:
 
         print('>>>>> Serial read ({1:.0f} ms): {0}'.format(result, 1000 * (end-start)))
         return result
-
-    
-          
-
-    
