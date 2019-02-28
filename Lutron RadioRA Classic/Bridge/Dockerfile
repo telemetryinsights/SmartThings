@@ -13,6 +13,7 @@ RUN apk update \
  && python3 -m ensurepip \
  && rm -r /usr/lib/python*/ensurepip \
  && pip3 install --upgrade pip setuptools \
+ && pip install --no-cache-dir -r requirements.txt \
  && cd /usr/bin \
  && ln -sf pip3 pip \
  && ln -sf python3 python \
