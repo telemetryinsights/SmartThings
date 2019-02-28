@@ -8,6 +8,7 @@ ARG BUILD_VERSION
 LABEL authors="Homemations"
 
 ADD . /app
+WORKDIR /app
 
 # install git and Python3 environment
 RUN apk update \
@@ -22,5 +23,5 @@ RUN apk update \
  && rm -rf /root/.cache /var/cache \
  && TIMESTAMP="2019-02-26-00-00"
 
-WORKDIR /app
-CMD [ "python3", "radiora-classic-bridge.py" ]
+#CMD [ "python3", "radiora-classic-bridge.py" ]
+CMD [ "./run.sh" ]

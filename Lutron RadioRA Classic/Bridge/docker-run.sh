@@ -5,4 +5,5 @@ if [[ -z "$SERIAL_TTY" ]]; then
 fi
 echo "RadioRA Classic Bridge is using serial $SERIAL_TTY"
 
-python3 radiora-classic-bridge.py
+# to run in Docker:
+docker run --env SERIAL_TTY=$SERIAL_TTY -t -i --device=$SERIAL_TTY --privileged radiora-classic-bridge
