@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t radiora-classic-bridge ..
+docker build -t radiora-classic-bridge .
