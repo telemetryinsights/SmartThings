@@ -1,6 +1,6 @@
 # RadioRA Classic Bridge Changelog
 
-### 1.2
+### 1.2 / 2019-02-28
 RadioRA Classic Smart Bridge now auto-discovers the serial tty of the RS232 hardware module for common cases.
 
  - updated documentation
@@ -9,7 +9,7 @@ RadioRA Classic Smart Bridge now auto-discovers the serial tty of the RS232 hard
  - configurable serial port discovery list via SERIAL_TTY environment variable (if needed)
  - emits the Lutron version of the RS232 hardware in logs
 
-### 1.1
+### 1.1 / 2019-02-25
 Added documentation, updated interfaces and performance improvements
 
  - significant refactoring and simplification to make install easier
