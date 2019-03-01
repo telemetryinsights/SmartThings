@@ -32,6 +32,8 @@ def initialize_app(flask_app):
     # inject RadioRA serial connection into the flask app
     flask_app.raSerial = raSerial 
 
+    configure_app(flask_app)
+
     blueprint = Blueprint('api', __name__, url_prefix='/api')
     api.init_app(blueprint)
     api.add_namespace(manager_zones_namespace)
@@ -39,7 +41,6 @@ def initialize_app(flask_app):
     api.add_namespace(manager_command_namespace)
     flask_app.register_blueprint(blueprint)
 
-    configure_app(flask_app)
     db.init_app(flask_app)
 
 def main():
