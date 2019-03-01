@@ -1,7 +1,6 @@
 # Lutron RadioRA Classic Tools
 
-[![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE.md)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Tools for integrating with Lutron RadioRA Classic light switches and dimmers including a REST-RS232 bridge plus additional optional SmartThings scripts. Credit goes to Stephen Harris at Homemations for developing this Python-based Lutron RadioRA Classic RESTful server and SmartThings scripts.
 
