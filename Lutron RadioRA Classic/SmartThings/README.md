@@ -1,4 +1,4 @@
-# SmartThings Hub Integration for RadioRA Classic Smart Bridge
+# SmartThings Support for RadioRA Classic Smart Bridge
 
 ## Installation
 
