@@ -1,20 +1,16 @@
-# RadioRA Classic Smart Bridge
+# Lutron RadioRA Classic Tools
 
 [![GitHub Release][releases-shield]][releases]
 [![License][license-shield]](LICENSE.md)
 
-Credit goes to Stephen Harris at Homemations for developing this Python-based Lutron RadioRA Classic server and SmartThings scripts.
+Tools for integrating with Lutron RadioRA Classic light switches and dimmers including a REST-RS232 bridge plus additional optional SmartThings scripts. Credit goes to Stephen Harris at Homemations for developing this Python-based Lutron RadioRA Classic RESTful server and SmartThings scripts.
 
-### Lutron RadioRA Classic Smart Bridge
+### RadioRA Classic Smart Bridge
 
-RESTful server and SmartThings support for controlling Lutron RadioRA Classic light switches and dimmers (this original Lutron lighting system is also called RadioRA 1 or Legacy RadioRA). The RadioRA Classic Smart Bridge must by run on a system (such as a Raspberry Pi) with a physical RS232 serial connection to one of Lutron's RadioRA Classic hardware serial modules such as the RA-RS232 or Chronos RA-SBT-CHR.
+RESTful server for controlling lighting switches and dimmers for Lutron's RadioRA Classic system (this original Lutron lighting system is also called RadioRA 1 or Legacy RadioRA). The RadioRA Classic Smart Bridge must by run on a system (such as a Raspberry Pi) with a physical RS232 serial connection to one of Lutron's RadioRA Classic hardware serial modules such as the RA-RS232 or Chronos RA-SBT-CHR.
 
-See [Bridge/ sub-directory](Bridge/) for instructions on setting up the hardware bridge.
+See [Bridge/ sub-directory](Bridge/) for instructions on setting up the RadioRA Classic Smart Bridge.
 
 ### SmartThings Setup
 
-See [SmartThings/ sub-directory](SmartThings/) for the Groovy scripts that must be installed for your SmartThings hub.
-
-2. Install the SmartApp and Device Handler for your SmartThings hub via the [SmartThings Groovy IDE](https://graph.api.smartthings.com/).
-
-3. ... more instructions to follow
+See [SmartThings/ sub-directory](SmartThings/) for the Groovy scripts that must be installed for your SmartThings hub which integrate your RadioRA Classic Smart Bridge into SmartThings.
