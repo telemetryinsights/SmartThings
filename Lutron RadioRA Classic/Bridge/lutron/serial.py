@@ -20,6 +20,7 @@ DEFAULT_SERIAL_TTYS_TO_SEARCH = [ '/dev/ttyS0',         # Raspberry Pi mini UART
 class RadioRASerial:
 
     def __init__(self):
+        self.version = None
         self.tty_timeout = int(os.environ['SERIAL_TTY_TIMEOUT']) if 'SERIAL_TTY_TIMEOUT' in os.environ else 1
         ttys_to_search = DEFAULT_SERIAL_TTYS_TO_SEARCH
 
