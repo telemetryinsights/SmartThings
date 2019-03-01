@@ -29,8 +29,8 @@ def configure_app(flask_app):
     flask_app.config['ERROR_404_HELP'] = settings.RESTPLUS_ERROR_404_HELP
 
 def initialize_app(flask_app):
-    # FIXME: need to inject serial into the Flask namespaces
-    flask_app.raSerial = raSerial
+    # inject RadioRA serial connection into the flask app
+    flask_app.raSerial = raSerial 
 
     blueprint = Blueprint('api', __name__, url_prefix='/api')
     api.init_app(blueprint)
@@ -44,9 +44,7 @@ def initialize_app(flask_app):
 
 def main():
 
-    # tty = '/dev/ttyUSB0' if not os.environ['SERIAL_TTY'] else os.environ['SERIAL_TTY']
     raSerial = RadioRASerial(None)
-    print(raSerial)
     if raSerial is None:
         exit
 
