@@ -14,7 +14,7 @@ Credit goes to Stephen Harris at Homemations for developing this Python-based Lu
 
 3. Start the RadioRA Classic Smart Bridge (execute ./run.sh in simple case; or use the provided Docker container)
 
-4. Use your browser to go to http://<yourhosthere>:8333/api/
+4. Use your browser to go to http://yourhost:8333/api/
 
 NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interface, or Sivoia Control. Each RadioRA Classic system has a maximum of 32 zones. Multiple instances of the Bridge can be run on different ports with serial cables connected to different RadioRA hardware modules to support an unlimited number of zones.
 
