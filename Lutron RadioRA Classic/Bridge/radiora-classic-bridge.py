@@ -43,10 +43,7 @@ def initialize_app(flask_app):
     db.init_app(flask_app)
 
 def main():
-
-    raSerial = RadioRASerial(None)
-    if raSerial is None:
-        exit
+    raSerial = RadioRASerial()
 
     # default the RS232 device to a known state on startup
     raSerial.writeCommand('SFL,17,OFF') # force flashing mode off
