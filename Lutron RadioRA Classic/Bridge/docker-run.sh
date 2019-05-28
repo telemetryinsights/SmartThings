@@ -1,11 +1,15 @@
 #!/bin/bash
 
+# default to port 8333, if RADIORA_BRIDGE_PORT is not defined
+RADIORA_BRIDGE_PORT="${RADIORA_BRIDGE_PORT:-8333}"
+
 if [ -z "RADIORA_BRIDGE_TTY"]
 then
-  CMD="docker run -t -i --privileged radiora-classic-bridge"
+  EXTRA_OPTIONS=""
 else
-  CMD="docker run --env RADIORA_BRIDGE_TTY=$RADIORA_BRIDGE_TTY -t -i --device=$RADIORA_BRIDGE_TTY --privileged radiora-classic-bridge"
+  EXTRA_OPTIONS="--env RADIORA_BRIDGE_TTY=$RADIORA_BRIDGE_TTY --device=$RADIORA_BRIDGE_TTY"
 end
 
+CMD="docker run --privileged -t -i $EXTRA_OPTIONS radiora-classic-bridge"
 echo "Executing: $CMD"
 $CMD
