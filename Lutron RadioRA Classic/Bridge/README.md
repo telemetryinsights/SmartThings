@@ -10,7 +10,7 @@ Credit goes to Stephen Harris at Homemations for developing this Python-based Lu
 
 1. Using your Lutron RadioRA Classic RS232 module, you must physically assign each Zone to a specific switch or dimmer. See the manual for your Lutron hardware module for these steps. Any Zones that are not physically configured on the Lutron hardware device will show up as Unassigned when querying zones later.
 
-2. Connect the RS-232 module to the host that will be running the RadioRA Classic Smart Bridge with a serial cable. The Bridge should auto-discover the RadioRA Classic RS-232 hardware, but if it does not you can set the environment variable SERIAL_TTY to the /dev/tty device which maps to your serial port.
+2. Connect the RS-232 module to the host that will be running the RadioRA Classic Smart Bridge with a serial cable. The Bridge should auto-discover the RadioRA Classic RS-232 hardware, but if it does not you can set the environment variable RADIORA_BRIDGE_TTY to the /dev/tty device which maps to your serial port.
 
 3. Start the RadioRA Classic Smart Bridge (execute ./run.sh in simple case; or use the provided Docker container)
 

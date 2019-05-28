@@ -5,29 +5,30 @@ import logging
 
 log = logging.getLogger(__name__)
 
-# unless an explicit SERIAL_TTY is specified to use, this searches by default across
+# unless an explicit RADIORA_BRIDGE_TTY is specified to use, this searches by default across
 # a set of common TTYs to find a RadioRA Classic RS232 module
-DEFAULT_SERIAL_TTYS_TO_SEARCH = [ '/dev/ttyS0',         # Raspberry Pi mini UART GPIO
-                                  '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
-                                  '/dev/serial0',       # RPi 3 serial port alias 1
-                                  '/dev/serial1',       # RPi 3 serial port alias 2
-                                  '/dev/tty.usbserial', # typical MacOS USB serial adapter
-                                  '/dev/ttyUSB0',       # Linux USB serial 1
-                                  '/dev/ttyUSB1',       # Linux USB serial 2
-                                  '/dev/ttyUSB2'        # Linux USB serial 3
-                                ]
+DEFAULT_RADIORA_BRIDGE_TTY_TO_SEARCH =
+  [ '/dev/ttyS0',         # Raspberry Pi mini UART GPIO
+    '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
+    '/dev/serial0',       # RPi 3 serial port alias 1
+    '/dev/serial1',       # RPi 3 serial port alias 2
+    '/dev/tty.usbserial', # typical MacOS USB serial adapter
+    '/dev/ttyUSB0',       # Linux USB serial 1
+    '/dev/ttyUSB1',       # Linux USB serial 2
+    '/dev/ttyUSB2'        # Linux USB serial 3
+  ]
 
 class RadioRASerial:
 
     def __init__(self):
         self.version = None
-        self.tty_timeout = int(os.environ['SERIAL_TTY_TIMEOUT']) if 'SERIAL_TTY_TIMEOUT' in os.environ else 1
-        ttys_to_search = DEFAULT_SERIAL_TTYS_TO_SEARCH
+        self.tty_timeout = int(os.environ['RADIORA_BRIDGE_TTY_TIMEOUT']) if 'RADIORA_BRIDGE_TTY_TIMEOUT' in os.environ else 1
+        ttys_to_search = DEFAULT_RADIORA_BRIDGE_TTY_TO_SEARCH
 
-        # NOTE: SERIAL_TTY environment variable overrides the default search paths
-        if 'SERIAL_TTY' in os.environ:
-            tty_config = os.environ['SERIAL_TTY']
-            log.info(">>>>> RadioRA Classic device search paths overridden by env variable SERIAL_TTY=" + tty_config)
+        # NOTE: RADIORA_BRIDGE_TTY environment variable overrides the default search paths
+        if 'RADIORA_BRIDGE_TTY' in os.environ:
+            tty_config = os.environ['RADIORA_BRIDGE_TTY']
+            log.info(">>>>> RadioRA Classic device search paths overridden by env variable RADIORA_BRIDGE_TTY=" + tty_config)
             ttys_to_search = ','.split(tty_config)
 
         self.__discover_radiora_serial__(ttys_to_search)
