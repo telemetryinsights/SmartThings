@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# to run in Docker:
-#CMD="docker run --env RADIORA_BRIDGE_TTY=$RADIORA_BRIDGE_TTY -t -i --device=$RADIORA_BRIDGE_TTY --privileged radiora-classic-bridge"
-CMD="docker run -t -i --privileged radiora-classic-bridge"
+if [ -z "RADIORA_BRIDGE_TTY"]
+then
+  CMD="docker run -t -i --privileged radiora-classic-bridge"
+else
+  CMD="docker run --env RADIORA_BRIDGE_TTY=$RADIORA_BRIDGE_TTY -t -i --device=$RADIORA_BRIDGE_TTY --privileged radiora-classic-bridge"
+end
 
 echo "Executing: $CMD"
 $CMD
