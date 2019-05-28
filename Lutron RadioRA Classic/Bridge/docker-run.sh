@@ -7,7 +7,7 @@ if [ -z "RADIORA_BRIDGE_TTY"]
 then
   EXTRA_OPTIONS=""
 else
-  EXTRA_OPTIONS="--env RADIORA_BRIDGE_TTY=$RADIORA_BRIDGE_TTY --device=$RADIORA_BRIDGE_TTY"
+  EXTRA_OPTIONS="--env RADIORA_BRIDGE_TTY=\"$RADIORA_BRIDGE_TTY\" --device=\"$RADIORA_BRIDGE_TTY\""
 end
 
 CMD="docker run --privileged -t -i $EXTRA_OPTIONS radiora-classic-bridge"
