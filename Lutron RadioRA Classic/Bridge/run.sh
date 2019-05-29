@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# default to port 8333, if RADIORA_BRIDGE_PORT is not defined
+RADIORA_BRIDGE_PORT="${RADIORA_BRIDGE_PORT:-8333}"
+
 # NOTE: to override the RadioRA Classic Smart Bridge's default /dev/tty* search path,
 # set RADIORA_BRIDGE_TTY; can be comma separate list of devices to search:
 #

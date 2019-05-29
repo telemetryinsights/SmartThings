@@ -13,3 +13,7 @@ See [Bridge/ sub-directory](Bridge/) for instructions on setting up the RadioRA 
 ### SmartThings Setup
 
 See [SmartThings/ sub-directory](SmartThings/) for the Groovy scripts that must be installed for your SmartThings hub which integrate your RadioRA Classic Smart Bridge into SmartThings.
+
+### Home Assistant
+
+If you are using Home Assistant, notably with the Hass.io hypervisor, a Hass.io Add-On is available for quick easy installation of the RadioRA Classic Smart Bridge: [Hass.io RadioRA Classic Bridge Add-On](https://github.com/rsnodgrass/hassio-addons/tree/master/radiora-classic-bridge).
