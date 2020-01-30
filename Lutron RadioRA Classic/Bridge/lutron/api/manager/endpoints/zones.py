@@ -5,7 +5,7 @@ import logging
 from flask import request
 from flask_restplus import Resource
 
-#import myapplication.myviews.view
+from flask import current_app as app
 
 from lutron.api.manager.dbmethods import create_zone, update_zone, delete_zone
 from lutron.api.manager.serializers import zone, zonetype, zonetype_with_zones
@@ -27,13 +27,11 @@ LUTRON = 'lutron'
 
 ns = api.namespace('zones', description='Zone operations')
 
-raSerial = None  # FIXME
-
 # FIXME: this will not work on Lutron installations where a Chronos System Bridge or
 # Timeclock is setup to be a System Bridge where TWO zone maps will be returned (a total of 64 zones)
 def getAllZoneStates():
-    api.raSerial.writeCommand('ZMPI')
-    zoneStates = raSerial.readData().lstrip('ZMP')
+    app.raSerial.writeCommand('ZMPI')
+    zoneStates = app.raSerial.readData().lstrip('ZMP')
     return zoneStates
 
 def mergeZoneStates(zones, stateZMP):
@@ -111,42 +109,42 @@ class ZoneItem(Resource):
 class ZoneDimmerLevel(Resource):
     def get(self, zone, level):
         # SDL,<Zone Number>,<Dimmer Level>(,<Fade Time>){(,<System)}
-        raSerial.writeCommand("SDL," + zone + "," + level)
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("SDL," + zone + "," + level)
+        return { LUTRON: app.raSerial.readData() }
 
 @ns.route('/<int:id>/switch/on')
 class ZoneSwitchOn(Resource):
     def get(self, zone):
         # SSL,<Zone Number>,<State>(,<Delay Time>){(,<System>)}
-        raSerial.writeCommand("SSL," + zone + ",ON")
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("SSL," + zone + ",ON")
+        return { LUTRON: app.raSerial.readData() }
 
 @ns.route('/<int:id>/switch/off')
 class ZoneSwitchOff(Resource):
     def get(self, zone):
-        raSerial.writeCommand("SSL," + zone + ",OFF")
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("SSL," + zone + ",OFF")
+        return { LUTRON: app.raSerial.readData() }
 
 @ns.route('/all/on')
 class AllOn(Resource):
     def get(self):
-        raSerial.writeCommand("BP,16,ON")
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("BP,16,ON")
+        return { LUTRON: app.raSerial.readData() }
 
 @ns.route('/all/off')
 class AllOff(Resource):
     def get(self):
-        raSerial.writeCommand("BP,17,OFF")
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("BP,17,OFF")
+        return { LUTRON: app.raSerial.readData() }
 
 @ns.route('/all/flash/on')
 class FlashOn(Resource):
     def get(self):
-        raSerial.writeCommand("SFM,16,ON")
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("SFM,16,ON")
+        return { LUTRON: app.raSerial.readData() }
 
 @ns.route('/all/flash/off')
 class FlashOff(Resource):
     def get(self):
-        raSerial.writeCommand("SFM,17,OFF")
-        return { LUTRON: raSerial.readData() }
+        app.raSerial.writeCommand("SFM,17,OFF")
+        return { LUTRON: app.raSerial.readData() }
