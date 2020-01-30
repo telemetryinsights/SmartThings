@@ -37,10 +37,40 @@ NOTE: If you want to integrate the Smart Bridge with SmartThings (vs using it st
 ## Examples
 
 ```
-http://localhost:8333/api/
+wget http://localhost:8333/api/zones/
+```
 
-/<cmd>/zone/<zone>/level/<level>
-
+```json
+[
+  {
+    "id": 1,
+    "name": "Zone 1",
+    "zone": 1,
+    "system": 1,
+    "state": "on",
+    "zonetypeid": 2,
+    "zonetype": "Dimmer"
+  },
+  {
+    "id": 2,
+    "name": "Zone 2",
+    "zone": 2,
+    "system": 1,
+    "state": "on",
+    "zonetypeid": 2,
+    "zonetype": "Dimmer"
+  },
+  {
+    "id": 3,
+    "name": "Zone 3",
+    "zone": 3,
+    "system": 1,
+    "state": "off",
+    "zonetypeid": 2,
+    "zonetype": "Dimmer"
+  },
+  ...
+]
 ```
 
 ### NOTES
