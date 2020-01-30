@@ -43,7 +43,7 @@ class RadioRASerial:
         self.__discover_radiora_serial__(ttys_to_search)
 
     def __discover_radiora_serial__(self, ttys_to_search):
-        LOG.info(">>>>> Discovering RadioRA device on serial interfaces: {}".format(', '.join(ttys_to_search)))
+        LOG.info(">> Discovering RadioRA device on serial interfaces: {}".format(', '.join(ttys_to_search)))
         for tty in ttys_to_search:
             try:
                 if not os.path.exists(tty):
@@ -83,7 +83,6 @@ class RadioRASerial:
 
     def _readline(self):
         eol = b'\r'
-        leneol = len(eol)
         line = bytearray()
         while True:
             c = self.serial.read(1)

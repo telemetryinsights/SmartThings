@@ -23,6 +23,7 @@ NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interf
 * Raspberry Pi or other server to run the RadioRA Classic Smart Bridge
 
 * Lutron hardware module that supports RS-232 communication with a RadioRA Classic system:
+
     - [RadioRA RS232 Serial Interface](http://www.lutron.com/TechnicalDocumentLibrary/044005c.pdf) (RA-RS232)
     - [RadioRA Chronos System Bridge](http://www.lutron.com/TechnicalDocumentLibrary/044037b.pdf) (RA-SBT-CHR)
 
