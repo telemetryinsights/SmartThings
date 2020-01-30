@@ -7,7 +7,8 @@ RADIORA_BRIDGE_PORT="${RADIORA_BRIDGE_PORT:-8333}"
 # set RADIORA_BRIDGE_TTY; can be comma separate list of devices to search:
 #
 #   export RADIORA_BRIDGE_TTY=/dev/tty.usbserial,/dev/serial0
-
+#
 # NOTE: mapping of MacOS /dev/tty* into Docker environment is currently not supported (Feb 2019)
 
+echo "Executing: python3 radiora-classic-bridge.py"
 python3 radiora-classic-bridge.py
