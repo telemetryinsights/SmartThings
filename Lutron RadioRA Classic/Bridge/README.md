@@ -14,9 +14,9 @@ Credit goes to Stephen Harris at Homemations for developing this Python-based Lu
 
 3. Start the RadioRA Classic Smart Bridge (execute ./run.sh in simple case; or use the provided Docker container)
 
-4. Use your browser to go to http://yourhost:8333/api/
+4. Using your browser, access http://yourhost:8333/api/ to display info on the supported APIs.
 
-NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interface, or Sivoia Control. Each RadioRA Classic system has a maximum of 32 zones. Multiple instances of the Bridge can be run on different ports with serial cables connected to different RadioRA hardware modules to support an unlimited number of zones.
+NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interface, or Sivoia Control. Each RadioRA Classic system has a maximum of 32 zones. Multiple instances of the RadioRA Classic Bridge can be run on different ports with serial cables connected to different RadioRA hardware modules to support an unlimited number of zones.
 
 ## Required Hardware
 
@@ -34,6 +34,14 @@ NOTE: A zone is any individual RadioRA Classic dimmer, switch, GRAFIK Eye Interf
 
 NOTE: If you want to integrate the Smart Bridge with SmartThings (vs using it standalone for developing your own code against the REST API), complete the following:
 
+## Examples
+
+```
+http://localhost:8333/api/
+
+/<cmd>/zone/<zone>/level/<level>
+
+```
 
 ### NOTES
 

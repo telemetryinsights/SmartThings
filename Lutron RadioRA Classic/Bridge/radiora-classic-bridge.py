@@ -13,9 +13,10 @@ from lutron.api.restplus import api
 from lutron.database import db
 
 app = Flask(__name__)
+
 logging_conf_path = os.path.normpath(os.path.join(os.path.dirname(__file__), 'logging.conf'))
 logging.config.fileConfig(logging_conf_path)
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 raSerial = None
 
@@ -28,7 +29,7 @@ def configure_app(flask_app):
     flask_app.config['RESTPLUS_MASK_SWAGGER'] = settings.RESTPLUS_MASK_SWAGGER
     flask_app.config['ERROR_404_HELP'] = settings.RESTPLUS_ERROR_404_HELP
 
-def initialize_app(flask_app):
+def initialize_app(flask_app, raSerial):
     # inject RadioRA serial connection into the flask app
     flask_app.raSerial = raSerial 
 
@@ -49,9 +50,9 @@ def main():
     # default the RS232 device to a known state on startup
     raSerial.writeCommand('SFL,17,OFF') # force flashing mode off
 
-    initialize_app(app)
+    initialize_app(app, raSerial)
 
-    log.info('>>>>> Starting RadioRA Classic Smart Bridge v1.2.0 at http://{}/api/ <<<<<'.format(app.config['SERVER_NAME']))
+    LOG.info('>>>>> Starting RadioRA Classic Smart Bridge v1.2.0 at http://{}/api/'.format(app.config['SERVER_NAME']))
     app.run(debug=settings.FLASK_DEBUG)
 
 if __name__ == "__main__":
