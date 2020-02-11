@@ -38,7 +38,7 @@ class RadioRASerial:
         if 'RADIORA_BRIDGE_TTY' in os.environ:
             tty_config = os.environ['RADIORA_BRIDGE_TTY']
             LOG.info(">> RadioRA Classic device search paths overridden by env variable RADIORA_BRIDGE_TTY=" + tty_config)
-            ttys_to_search = ','.split(tty_config)
+            ttys_to_search = tty_config.split(',')
 
         self.__discover_radiora_serial__(ttys_to_search)
 
