@@ -43,7 +43,8 @@ class RadioRASerial:
                     logging.info(">> Serial device {} does not exist, ignoring".format(tty))
                     continue
                 
-                self._tty = tty
+                LOG.warning('>> Testing tty {}'.format(tty))
+                self.tty = tty
                 self.serial = serial.Serial(tty,
                                             baudrate=9600, # 9600 baud is required by RA-RS232
                                             parity=serial.PARITY_NONE,
@@ -57,12 +58,12 @@ class RadioRASerial:
                 # response = REV,M<Master Revision>,S<Slave Revision>, e.g. REV,M3.14,S1.01
                 if ((response != None) and response.startswith('REV,')):
                     self.version = response.lstrip('REV,')
-                    self.tty = tty
-                    logging.warning('>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty,self.version))
+                    LOG.warning('>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty, self.version))
                     break
 
                 self.serial.close()
                 self.serial = None
+                self.tty = None
 
             except:
                 LOG.error('Unexpected error: %s', sys.exc_info()[0])
