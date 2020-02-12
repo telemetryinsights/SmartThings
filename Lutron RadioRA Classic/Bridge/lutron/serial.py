@@ -10,13 +10,6 @@ LOG = logging.getLogger(__name__)
 # a set of common TTYs to find a RadioRA Classic RS232 module
 DEFAULT_RADIORA_BRIDGE_TTY_TO_SEARCH = [
     '/dev/tty.usbserial-A501SGSU',
-    '/dev/tty.usbserial-A501SGSV',
-    '/dev/tty.usbserial-A501SGSW',
-    '/dev/tty.usbserial-A501SGSX',
-    '/dev/tty.usbserial-A501SGSY',
-    '/dev/tty.usbserial-A501SGSZ',
-    '/dev/tty.usbserial-A501SGS0',
-    '/dev/tty.usbserial-A501SGS1',
     '/dev/ttyS0',         # Raspberry Pi mini UART GPIO
     '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
     '/dev/serial0',       # RPi 3 serial port alias 1
@@ -73,7 +66,7 @@ class RadioRASerial:
 
             except:
                 LOG.error('Unexpected error: %s', sys.exc_info()[0])
-                raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
+                self.version = None
         
         if self.version == None:
             raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
