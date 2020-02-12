@@ -43,6 +43,7 @@ class RadioRASerial:
                     logging.info(">> Serial device {} does not exist, ignoring".format(tty))
                     continue
                 
+                self._tty = tty
                 self.serial = serial.Serial(tty,
                                             baudrate=9600, # 9600 baud is required by RA-RS232
                                             parity=serial.PARITY_NONE,
@@ -89,7 +90,7 @@ class RadioRASerial:
         return bytes(line).decode('utf-8')
 
     def writeCommand(self, command):
-        LOG.debug('>> Serial write: {}'.format(command))
+        LOG.debug('>> Serial write to {}: {}'.format(self._tty, command))
         self.serial.reset_input_buffer()
         self.serial.write((command + "\r\n").encode('utf-8'))
 
