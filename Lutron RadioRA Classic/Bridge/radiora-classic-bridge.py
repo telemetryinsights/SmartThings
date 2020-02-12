@@ -2,6 +2,11 @@ import os
 import time
 import logging.config
 
+# must initialize logging before any imports
+log_config_file = os.path.normpath(os.path.join(os.path.dirname(__file__), 'logging.conf'))
+logging.config.fileConfig(log_config_file)
+LOG = logging.getLogger(__name__)
+
 from lutron import settings
 from lutron.serial import RadioRASerial
 
@@ -13,10 +18,6 @@ from lutron.api.restplus import api
 from lutron.database import db
 
 app = Flask(__name__)
-
-logging_conf_path = os.path.normpath(os.path.join(os.path.dirname(__file__), 'logging.conf'))
-logging.config.fileConfig(logging_conf_path)
-LOG = logging.getLogger(__name__)
 
 raSerial = None
 

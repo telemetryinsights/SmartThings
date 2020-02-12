@@ -1,7 +1,7 @@
 import os
+import sys
 import time
 import serial
-import sys
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class RadioRASerial:
         # NOTE: RADIORA_BRIDGE_TTY environment variable overrides the default search paths
         if 'RADIORA_BRIDGE_TTY' in os.environ:
             tty_config = os.environ['RADIORA_BRIDGE_TTY']
-            LOG.info(">> RadioRA Classic device search paths overridden by env variable RADIORA_BRIDGE_TTY=" + tty_config)
+            logging.info(">> RadioRA Classic device search paths overridden by env variable RADIORA_BRIDGE_TTY=" + tty_config)
             ttys_to_search = tty_config.split(',')
 
         self.__discover_radiora_serial__(ttys_to_search)
@@ -40,7 +40,7 @@ class RadioRASerial:
         for tty in ttys_to_search:
             try:
                 if not os.path.exists(tty):
-                    LOG.info(">> Serial device {} does not exist, ignoring".format(tty))
+                    logging.info(">> Serial device {} does not exist, ignoring".format(tty))
                     continue
                 
                 self.serial = serial.Serial(tty,
@@ -57,8 +57,7 @@ class RadioRASerial:
                 if ((response != None) and response.startswith('REV,')):
                     self.version = response.lstrip('REV,')
                     self.tty = tty
-                    LOG.warning('>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty,self.version))
-                    print('>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty,self.version))
+                    logging.warning('>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty,self.version))
                     break
 
                 self.serial.close()
@@ -69,6 +68,7 @@ class RadioRASerial:
                 self.version = None
         
         if self.version == None:
+            LOG.fatal("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
             raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
 
     def __repr__(self):
