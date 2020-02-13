@@ -10,6 +10,15 @@ LOG = logging.getLogger(__name__)
 # a set of common TTYs to find a RadioRA Classic RS232 module
 DEFAULT_RADIORA_BRIDGE_TTY_TO_SEARCH = [
     '/dev/tty.usbserial-A501SGSU',
+    '/dev/tty.usbserial-A501SGSV',
+    '/dev/tty.usbserial-A501SGSW',
+    '/dev/tty.usbserial-A501SGSX',
+    '/dev/tty.usbserial-A501SGSY',
+    '/dev/tty.usbserial-A501SGSZ',
+    '/dev/tty.usbserial-A501SGT0',
+    '/dev/tty.usbserial-A501SGT1',
+    '/dev/tty.usbserial-A501SGT2',
+    '/dev/tty.usbserial-A501SGT3',
     '/dev/ttyS0',         # Raspberry Pi mini UART GPIO
     '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
     '/dev/serial0',       # RPi 3 serial port alias 1
@@ -57,8 +66,8 @@ class RadioRASerial:
 
                 # response = REV,M<Master Revision>,S<Slave Revision>, e.g. REV,M3.14,S1.01
                 if ((response != None) and response.startswith('REV,')):
-                    self.version = response.lstrip('REV,')
-                    LOG.warning('>> Discovered Lutron RadioRA Classic at {} (version={})'.format(self.tty, self.version))
+                    self.version = response.lstrip('REV,').rstrip('!')
+                    LOG.warning('>> Found Lutron RadioRA Classic at {} (version={})'.format(self.tty, self.version))
                     break
 
                 self.serial.close()
@@ -74,7 +83,7 @@ class RadioRASerial:
             raise RuntimeError("No RadioRA RS232 devices discovered at {}".format(', '.join(ttys_to_search)))
 
     def __repr__(self):
-        return '<RadioRA Classic RS232 : tty={} : version={}>'.format(self.tty, self.version)
+        return '<RadioRA Classic RS232: tty={}; version={}>'.format(self.tty, self.version)
 
     def _readline(self):
         eol = b'\r'
@@ -91,7 +100,7 @@ class RadioRASerial:
         return bytes(line).decode('utf-8')
 
     def writeCommand(self, command):
-        LOG.debug('>> Serial write to {}: {}'.format(self._tty, command))
+        LOG.info('>> Serial write to {}: {}'.format(self.tty, command))
         self.serial.reset_input_buffer()
         self.serial.write((command + "\r\n").encode('utf-8'))
 
@@ -99,11 +108,10 @@ class RadioRASerial:
     # waiting for a 1 or 2 second timeout on every read. This could be improved in future.
     def readData(self):
         start = time.time()
-        result = result = self._readline()
+        result = self._readline()
         while self.serial.in_waiting:
             result = result + self._readline()
-#            result = result.bytes.decode('utf-8').upper()
         end = time.time()
 
-        LOG.debug('>> Serial read ({1:.0f} ms): {0}'.format(result, 1000 * (end-start)))
+        LOG.info('>> Serial read ({1:.0f} ms): {0}'.format(result, 1000 * (end-start)))
         return result
