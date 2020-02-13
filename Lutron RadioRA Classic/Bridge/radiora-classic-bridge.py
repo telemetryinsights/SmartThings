@@ -54,7 +54,7 @@ def main():
 
     port = 8333
     LOG.info('>>>>> Starting RadioRA Classic Smart Bridge v1.2.0 on port {port}')
-    app.run(debug=settings.FLASK_DEBUG, port=port)
+    app.run(debug=settings.FLASK_DEBUG, host='0.0.0.0', port=port)
 
 if __name__ == "__main__":
     main()
