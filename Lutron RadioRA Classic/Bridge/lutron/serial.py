@@ -20,13 +20,18 @@ DEFAULT_RADIORA_BRIDGE_TTY_TO_SEARCH = [
     '/dev/tty.usbserial-A501SGT2',
     '/dev/tty.usbserial-A501SGT3',
     '/dev/ttyS0',         # Raspberry Pi mini UART GPIO
-    '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
+#    '/dev/ttyAMA0',       # Raspberry Pi GPIO pins 14/15 (pre-Bluetooth RPi 3)
     '/dev/serial0',       # RPi 3 serial port alias 1
     '/dev/serial1',       # RPi 3 serial port alias 2
     '/dev/tty.usbserial', # typical MacOS USB serial adapter
     '/dev/ttyUSB0',       # Linux USB serial 1
     '/dev/ttyUSB1',       # Linux USB serial 2
-    '/dev/ttyUSB2'        # Linux USB serial 3
+    '/dev/ttyUSB2',       # Linux USB serial
+    '/dev/ttyUSB3',       # Linux USB serial
+    '/dev/ttyUSB4',       # Linux USB serial
+    '/dev/ttyUSB5',       # Linux USB serial
+    '/dev/ttyUSB6',       # Linux USB serial
+    '/dev/ttyUSB7'        # Linux USB serial
 ]
 
 class RadioRASerial:
