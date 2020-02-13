@@ -25,13 +25,7 @@ DEFAULT_RADIORA_BRIDGE_TTY_TO_SEARCH = [
     '/dev/serial1',       # RPi 3 serial port alias 2
     '/dev/tty.usbserial', # typical MacOS USB serial adapter
     '/dev/ttyUSB0',       # Linux USB serial 1
-    '/dev/ttyUSB1',       # Linux USB serial 2
-    '/dev/ttyUSB2',       # Linux USB serial
-    '/dev/ttyUSB3',       # Linux USB serial
-    '/dev/ttyUSB4',       # Linux USB serial
-    '/dev/ttyUSB5',       # Linux USB serial
-    '/dev/ttyUSB6',       # Linux USB serial
-    '/dev/ttyUSB7'        # Linux USB serial
+    '/dev/ttyUSB1'        # Linux USB serial 2
 ]
 
 class RadioRASerial:
