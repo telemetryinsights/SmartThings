@@ -1,6 +1,7 @@
-# Homemations SmartThings SmartApps and Device Handlers
+# Homemations SmartThings Integrations
 
-Homemations has created several solutions for the SmartThings platform that provides for new integrations.  They are:
+Homemations has created several SmartThings integrations:
 
-- **ISpyConnect Manager** - Provides the ability to integrate most 3rd party cameras into the SmartThings platform by providing the integration of the iSpyConnect platform APIs with SmartThings.  Using a local iSpyPro server, the world's #1 video surveillance software and a low cost subsciption.
-- **Lutron RadioRA Manager** - Provides the ability to intergate with Lutron RadioRA home lighting system into the SmartThings platform by providing the intergation via a Raspberry PI Gateway.  The Raspberry PI Gateway was also developed by HomeMations using Python to expose RESTful APIs.  The Raspberry PI connects to the Lutron RadioRA serial interface and home LAN to bridge the commuincation enabling the SmartThings hub to interface.  
+- **[ISpyConnect Manager](ISpyConnect/)** - Provides support for most third-party cameras with SmartThings by providing integration using the iSpyConnect APIs to a local iSpyPro server, the world's #1 video surveillance software and a low cost subsciption.
+
+- **[Lutron RadioRA Classic Tools](Lutron%20RadioRA%20Classic/)** - Tools for integrating with Lutron RadioRA Classic light switches and dimmers including a REST-RS232 bridge plus additional optional SmartThings scripts.
